@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luz de Cherenkov · IF-UNAM</title>
+<meta name="description" content="Animación interactiva de la luz de Cherenkov y de un evento de neutrino en IceCube.">
+<meta name="theme-color" content="#E3EEF8">
+<link rel="stylesheet" href="../assets/estilo.css">
+<style>
+  .lecturas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  .lecturas div { background: var(--fondo); border-radius: 12px; padding: 8px 10px; font-size: 13px; color: var(--tinta-2); }
+  .lecturas b { display: block; font-size: 20px; color: var(--tinta); font-variant-numeric: tabular-nums; }
+  .estado { font-weight: 800; font-size: 18px; margin: 12px 0 0; min-height: 54px; }
+  .escala-t { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #d7263d, #f39c12, #f1c40f, #2ecc71, #3498db, #8e44ad); margin: 6px 0 2px; }
+  .escala-txt { display: flex; justify-content: space-between; font-size: 13px; color: var(--tinta-2); }
+</style>
+</head>
+<body>
+<header class="barra"><div class="interior"><a class="marca" href="../">Neutrinos · IF-UNAM</a><a class="volver" href="../">← Inicio</a></div></header>
+<main>
+  <h1>Más rápido que la luz… en el hielo</h1>
+  <p class="lead">Nada supera la velocidad de la luz en el vacío. Pero dentro del hielo la luz va <strong>más lenta</strong>, y una partícula muy energética puede adelantarla. Entonces deja una “estela” de luz azul: la <strong>luz de Cherenkov</strong>.</p>
+
+  <section class="tarjeta" aria-label="Simulación de frentes de onda">
+    <canvas id="ondas" class="lienzo" height="260" role="img" aria-label="Una partícula avanza emitiendo ondas de luz; si va más rápido que la luz en el medio, las ondas se acumulan en un cono"></canvas>
+    <p class="estado" id="estado" aria-live="polite"></p>
+    <div class="lecturas">
+      <div>Partícula<b id="r-v">–</b></div>
+      <div>Luz en el medio<b id="r-c">–</b></div>
+      <div>Ángulo de la luz<b id="r-a">–</b></div>
+    </div>
+    <div class="controles">
+      <label class="deslizador">Velocidad de la partícula: <output id="o-v"></output>
+        <input type="range" id="vel" min="500" max="999" step="1" value="950">
+      </label>
+      <div class="grupo" role="group" aria-labelledby="et-med">
+        <span class="etiqueta" id="et-med">Medio</span>
+        <button type="button" data-n="1.31">Hielo</button>
+        <button type="button" data-n="1.33">Agua</button>
+        <button type="button" data-n="1.0003">Aire</button>
+      </div>
+      <div class="grupo"><button type="button" id="play" class="boton principal">⏸ Pausa</button></div>
+    </div>
+  </section>
+
+  <h2>Así “ve” IceCube un neutrino</h2>
+  <p>Un neutrino muónico choca con un átomo del hielo y crea un <strong>muón</strong>. El muón cruza el detector emitiendo luz de Cherenkov, y los sensores se encienden. El <strong>color</strong> indica cuándo llegó la luz y el <strong>tamaño</strong>, cuánta luz recibió cada sensor.</p>
+  <section class="tarjeta" aria-label="Simulación de un evento en IceCube">
+    <canvas id="detector" class="lienzo" height="340" role="img" aria-label="Detector con cables de sensores; un muón lo atraviesa y los sensores se iluminan según el tiempo de llegada de la luz"></canvas>
+    <div class="escala-t" aria-hidden="true"></div>
+    <div class="escala-txt" aria-hidden="true"><span>Llega primero</span><span>Llega después</span></div>
+    <div class="controles"><div class="grupo">
+      <button type="button" id="lanzar" class="boton principal">Lanzar un neutrino</button>
+    </div></div>
+    <p class="estado" id="estado2" aria-live="polite"></p>
+  </section>
+
+  <details class="fisica">
+    <summary>Ver la física</summary>
+    <p>En un medio con índice de refracción <i>n</i>, la luz viaja a <i>c/n</i>. Si una partícula cargada va a velocidad <i>v = βc</i> mayor que <i>c/n</i>, emite luz en un cono con ángulo</p>
+    <div class="formula">cos θ = 1 / (n β)</div>
+    <p style="margin-top:10px">El umbral es β &gt; 1/n. En el hielo (n ≈ 1.31) basta con β &gt; 0.76, y para partículas ultrarrelativistas θ ≈ 40°. En el aire (n ≈ 1.0003) casi ninguna partícula lo logra. Es el análogo luminoso del “estampido sónico” de un avión supersónico.</p>
+    <p>IceCube tiene 5 160 sensores en 86 cables, entre 1 450 y 2 450 m bajo el hielo del Polo Sur. Con los tiempos de llegada de la luz se reconstruye la dirección del muón y, con ella, de dónde vino el neutrino.</p>
+    <p class="aviso">Simulación simplificada en dos dimensiones: geometría de Cherenkov exacta, pero la atenuación y la dispersión de la luz en el hielo están idealizadas.</p>
+  </details>
+</main>
+<footer class="pie">Puertas Abiertas IF-UNAM 2026 · <a href="../">Otras animaciones</a></footer>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var reducido = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function prepararCanvas(cv) {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = cv.clientWidth, h = parseInt(cv.getAttribute("height"), 10);
+    cv.style.height = h + "px";
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: w, h: h };
+  }
+
+  // ===================== Parte 1: frentes de onda =====================
+  var A = { beta: 0.95, n: 1.31, t: 0, ondas: [], jugando: !reducido, ultEmision: 0 };
+  var cvO = $("ondas"), inV = $("vel"), btn = $("play");
+  var VC = 0; // px/s de la luz en el vacío (se ajusta al ancho)
+
+  function marcarMedio() { document.querySelectorAll("[data-n]").forEach(function (b) { b.setAttribute("aria-pressed", +b.getAttribute("data-n") === A.n ? "true" : "false"); }); }
+  function lecturas() {
+    $("o-v").textContent = A.beta.toFixed(3) + " c";
+    $("r-v").textContent = A.beta.toFixed(3) + " c";
+    $("r-c").textContent = (1 / A.n).toFixed(3) + " c";
+    var hay = A.beta * A.n > 1;
+    $("r-a").textContent = hay ? Math.round(Math.acos(1 / (A.n * A.beta)) * 180 / Math.PI) + "°" : "—";
+    var e = $("estado");
+    if (hay) { e.textContent = "¡Destello! La partícula adelanta a la luz y las ondas se acumulan en un cono."; e.style.color = "#1655C4"; }
+    else { e.textContent = "Sin luz de Cherenkov: la partícula va más lenta que la luz en este medio."; e.style.color = "#44546A"; }
+  }
+  function reiniciar() { A.t = 0; A.ondas = []; A.ultEmision = -1; }
+
+  function dibujarOndas() {
+    var g = prepararCanvas(cvO), ctx = g.ctx, w = g.w, h = g.h, yc = h / 2;
+    VC = w / 4; // la luz en el vacío cruza el lienzo en 4 s
+    var v = A.beta * VC, cm = VC / A.n;
+    var x = 20 + v * A.t;
+    ctx.clearRect(0, 0, w, h);
+    // ondas
+    for (var i = 0; i < A.ondas.length; i++) {
+      var o = A.ondas[i], r = cm * (A.t - o.t);
+      if (r <= 0) continue;
+      ctx.strokeStyle = "rgba(22,85,196," + Math.max(0.12, 0.6 - r / w) + ")"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(o.x, yc, r, 0, 2 * Math.PI); ctx.stroke();
+    }
+    // cono de Cherenkov
+    if (A.beta * A.n > 1 && A.ondas.length) {
+      var o0 = A.ondas[0], r0 = cm * (A.t - o0.t);
+      var sa = 1 / (A.n * A.beta), alfa = Math.asin(sa); // semiángulo del frente de choque
+      var L = (x - o0.x), ext = Math.sqrt(Math.max(0, L * L - r0 * r0));
+      var dx = ext * Math.cos(alfa), dy = ext * Math.sin(alfa);
+      ctx.fillStyle = "rgba(76,155,240,0.28)";
+      ctx.beginPath(); ctx.moveTo(x, yc); ctx.lineTo(x - dx, yc - dy); ctx.lineTo(x - dx, yc + dy); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "#1655C4"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x - dx, yc - dy); ctx.lineTo(x, yc); ctx.lineTo(x - dx, yc + dy); ctx.stroke();
+    }
+    // trayectoria y partícula
+    ctx.strokeStyle = "#0B1F3A"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(20, yc); ctx.lineTo(x, yc); ctx.stroke();
+    ctx.fillStyle = "#0B1F3A"; ctx.beginPath(); ctx.arc(x, yc, 8, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = "#44546A"; ctx.font = "600 13px system-ui, sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("partícula cargada (muón)", 20, h - 12);
+    return x > w + 0.8 * v; // breve pausa al final antes de reiniciar
+  }
+
+  inV.addEventListener("input", function () { A.beta = +inV.value / 1000; lecturas(); reiniciar(); });
+  document.querySelectorAll("[data-n]").forEach(function (b) { b.addEventListener("click", function () { A.n = +b.getAttribute("data-n"); marcarMedio(); lecturas(); reiniciar(); }); });
+  function pausar(si) { A.jugando = !si; btn.textContent = A.jugando ? "⏸ Pausa" : "▶ Reproducir"; }
+  btn.addEventListener("click", function () { pausar(A.jugando); });
+
+  // ===================== Parte 2: evento en IceCube =====================
+  var cvD = $("detector"), B = null, N_CABLES = 7, N_SENS = 10, N_HIELO = 1.31;
+  var TH = Math.acos(1 / N_HIELO); // ángulo de Cherenkov (β≈1)
+  function geom(w, h) {
+    var mx = 34, my = 34, cables = [];
+    for (var i = 0; i < N_CABLES; i++) {
+      var cx = mx + (w - 2 * mx) * i / (N_CABLES - 1), s = [];
+      for (var j = 0; j < N_SENS; j++) s.push({ x: cx, y: my + (h - 2 * my) * j / (N_SENS - 1) });
+      cables.push(s);
+    }
+    return cables;
+  }
+  function colorTiempo(f) { // 0 rojo -> 1 violeta
+    var stops = [[215, 38, 61], [243, 156, 18], [241, 196, 15], [46, 204, 113], [52, 152, 219], [142, 68, 173]];
+    f = Math.max(0, Math.min(1, f)) * (stops.length - 1);
+    var i = Math.min(stops.length - 2, Math.floor(f)), u = f - i, a = stops[i], b = stops[i + 1];
+    return "rgb(" + Math.round(a[0] + (b[0] - a[0]) * u) + "," + Math.round(a[1] + (b[1] - a[1]) * u) + "," + Math.round(a[2] + (b[2] - a[2]) * u) + ")";
+  }
+  function lanzar() {
+    var w = cvD.clientWidth, h = parseInt(cvD.getAttribute("height"), 10);
+    var ang = Math.random() * 2 * Math.PI, dir = [Math.cos(ang), Math.sin(ang)];
+    var vtx = [w * (0.3 + 0.4 * Math.random()), h * (0.3 + 0.4 * Math.random())];
+    var c = Math.max(w, h) / 1.6; // px/s para la luz (cámara lenta)
+    var cables = geom(w, h), golpes = [], tmax = 0, dmax = Math.min(w, h) * 0.42;
+    cables.forEach(function (s) { s.forEach(function (p) {
+      var rx = p.x - vtx[0], ry = p.y - vtx[1];
+      var sp = rx * dir[0] + ry * dir[1], d = Math.abs(rx * dir[1] - ry * dir[0]);
+      var se = sp - d / Math.tan(TH); // punto de emisión sobre la traza
+      if (se < 0 || d > dmax) return;
+      var t = se / c + (d / Math.sin(TH)) / (c / N_HIELO);
+      var q = Math.exp(-d / (dmax * 0.45)) / (0.3 + d / dmax);
+      golpes.push({ x: p.x, y: p.y, t: t, q: q }); if (t > tmax) tmax = t;
+    }); });
+    B = { dir: dir, vtx: vtx, c: c, golpes: golpes, tmax: tmax || 1, t: -0.9, w: w, h: h, fin: false };
+    $("estado2").textContent = "Llega un neutrino muónico… no deja rastro hasta que choca.";
+    $("lanzar").disabled = true;
+  }
+  function dibujarDetector() {
+    var g = prepararCanvas(cvD), ctx = g.ctx, w = g.w, h = g.h;
+    ctx.clearRect(0, 0, w, h);
+    var cables = geom(w, h);
+    ctx.strokeStyle = "#9FB6CF"; ctx.lineWidth = 1.5;
+    cables.forEach(function (s) { ctx.beginPath(); ctx.moveTo(s[0].x, 8); ctx.lineTo(s[0].x, h - 8); ctx.stroke(); });
+    ctx.fillStyle = "#5B7FA6";
+    cables.forEach(function (s) { s.forEach(function (p) { ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, 2 * Math.PI); ctx.fill(); }); });
+    if (!B) {
+      ctx.fillStyle = "#44546A"; ctx.font = "600 15px system-ui, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("Toca “Lanzar un neutrino”", w / 2, h / 2); return;
+    }
+    var R = Math.hypot(w, h);
+    // neutrino entrante (antes del vértice)
+    var tn = Math.min(0, B.t), ini = [B.vtx[0] - B.dir[0] * R, B.vtx[1] - B.dir[1] * R];
+    var pn = [B.vtx[0] + B.dir[0] * B.c * tn * 1.2, B.vtx[1] + B.dir[1] * B.c * tn * 1.2];
+    ctx.strokeStyle = "#D9661F"; ctx.lineWidth = 3; ctx.setLineDash([10, 8]);
+    ctx.beginPath(); ctx.moveTo(ini[0], ini[1]); ctx.lineTo(pn[0], pn[1]); ctx.stroke(); ctx.setLineDash([]);
+    if (B.t < 0) { ctx.fillStyle = "#D9661F"; ctx.beginPath(); ctx.arc(pn[0], pn[1], 7, 0, 2 * Math.PI); ctx.fill(); return; }
+    // vértice y muón
+    var L = B.c * B.t, pm = [B.vtx[0] + B.dir[0] * L, B.vtx[1] + B.dir[1] * L];
+    ctx.strokeStyle = "rgba(76,155,240,0.35)"; ctx.lineWidth = 14;
+    ctx.beginPath(); ctx.moveTo(B.vtx[0], B.vtx[1]); ctx.lineTo(pm[0], pm[1]); ctx.stroke();
+    ctx.strokeStyle = "#0B1F3A"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(B.vtx[0], B.vtx[1]); ctx.lineTo(pm[0], pm[1]); ctx.stroke();
+    ctx.fillStyle = "#F2B233"; ctx.beginPath(); ctx.arc(B.vtx[0], B.vtx[1], 9, 0, 2 * Math.PI); ctx.fill();
+    // sensores encendidos
+    B.golpes.forEach(function (gp) {
+      if (gp.t > B.t) return;
+      var r = 4 + 13 * Math.min(1, gp.q);
+      ctx.fillStyle = colorTiempo(gp.t / B.tmax);
+      ctx.beginPath(); ctx.arc(gp.x, gp.y, r, 0, 2 * Math.PI); ctx.fill();
+    });
+    if (B.t > B.tmax + 0.4 && !B.fin) {
+      B.fin = true; $("lanzar").disabled = false;
+      $("estado2").textContent = B.golpes.length + " sensores detectaron luz. Por el orden de los colores se deduce de dónde vino el neutrino.";
+    }
+  }
+  $("lanzar").addEventListener("click", lanzar);
+
+  // ===================== Bucle =====================
+  var tPrev = null;
+  function bucle(t) {
+    if (tPrev === null) tPrev = t;
+    var dt = Math.min(0.05, (t - tPrev) / 1000); tPrev = t;
+    if (!document.hidden) {
+      if (A.jugando) {
+        A.t += dt;
+        if (A.t - A.ultEmision >= 0.08 || A.ultEmision < 0) { A.ondas.push({ x: 20 + A.beta * VC * A.t, t: A.t }); A.ultEmision = A.t; }
+        if (dibujarOndas()) reiniciar();
+      }
+      if (B && !B.fin) B.t += dt * (reducido ? 4 : 1);
+      dibujarDetector();
+    }
+    requestAnimationFrame(bucle);
+  }
+  window.addEventListener("resize", function () { dibujarOndas(); dibujarDetector(); });
+  marcarMedio(); lecturas(); pausar(!A.jugando); dibujarOndas(); dibujarDetector();
+  requestAnimationFrame(bucle);
+})();
+</script>
+</body>
+</html>

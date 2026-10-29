@@ -1,0 +1,81 @@
+/* Estilo compartido — Divulgación de neutrinos (Puertas Abiertas IF-UNAM 2026)
+   Mismos colores que el cartel. Sin fuentes externas para que cargue rápido. */
+:root {
+  --fondo: #F6F8FB;
+  --hielo: #E3EEF8;
+  --tarjeta: #FFFFFF;
+  --tinta: #0B1F3A;
+  --tinta-2: #44546A;
+  --borde: #D5DFEA;
+  --acento: #1655C4;
+  --acento-osc: #0B3A8F;
+  --nu-e: #1846A3;   /* neutrino electrónico */
+  --nu-mu: #D9661F;  /* neutrino muónico */
+  --nu-mu-texto: #B4500F;
+  --nu-tau: #0E7A65; /* neutrino tauónico */
+  --cherenkov: #4C9BF0;
+  --oro: #B8860B;
+  --radio: 18px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--tinta);
+  background: var(--fondo);
+  -webkit-text-size-adjust: 100%;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--fondo); }
+body { line-height: 1.5; font-size: 17px; }
+a { color: var(--acento); }
+a:hover { color: var(--acento-osc); }
+
+.barra {
+  background: var(--hielo);
+  border-bottom: 4px solid var(--acento);
+  padding: 14px 16px;
+}
+.barra .interior { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: space-between; }
+.barra .marca { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--acento); text-decoration: none; }
+.barra .volver { font-size: 15px; font-weight: 600; text-decoration: none; }
+
+main { max-width: 760px; margin: 0 auto; padding: 20px 16px 48px; }
+h1 { font-size: clamp(28px, 7vw, 44px); line-height: 1.1; margin: 8px 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 22px; line-height: 1.2; margin: 28px 0 8px; }
+p { margin: 0 0 12px; }
+.lead { font-size: 19px; color: var(--tinta-2); }
+
+.tarjeta { background: var(--tarjeta); border: 2px solid var(--borde); border-radius: var(--radio); padding: 16px; }
+.lienzo { width: 100%; display: block; border-radius: 14px; background: var(--hielo); touch-action: manipulation; }
+
+.controles { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.grupo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.grupo > .etiqueta { width: 100%; font-size: 14px; font-weight: 700; color: var(--tinta-2); text-transform: uppercase; letter-spacing: .05em; }
+
+button, .boton {
+  font: inherit; font-weight: 700; font-size: 16px;
+  min-height: 44px; padding: 10px 16px; border-radius: 12px;
+  border: 2px solid var(--acento); background: #fff; color: var(--acento);
+  cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+button:hover { background: var(--hielo); }
+button[aria-pressed="true"], .boton.principal { background: var(--acento); color: #fff; }
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--nu-mu); outline-offset: 2px; }
+
+input[type=range] { width: 100%; min-height: 44px; accent-color: var(--acento); }
+label.deslizador { display: flex; flex-direction: column; gap: 2px; width: 100%; font-weight: 600; }
+label.deslizador output { font-weight: 800; color: var(--acento); }
+
+details.fisica { margin-top: 20px; background: var(--tarjeta); border: 2px solid var(--borde); border-radius: var(--radio); padding: 4px 16px; }
+details.fisica summary { min-height: 44px; display: flex; align-items: center; font-weight: 800; cursor: pointer; color: var(--acento); }
+details.fisica[open] { padding-bottom: 16px; }
+.formula { font-family: "Cambria Math", "STIX Two Math", "Times New Roman", serif; font-size: 19px; background: var(--fondo); border-radius: 10px; padding: 10px 12px; overflow-x: auto; white-space: nowrap; }
+table.param { border-collapse: collapse; width: 100%; font-size: 15px; }
+table.param td, table.param th { border-bottom: 1px solid var(--borde); padding: 6px 4px; text-align: left; }
+table.param td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+.leyenda { display: flex; gap: 14px; flex-wrap: wrap; font-weight: 700; font-size: 15px; margin-top: 8px; }
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.leyenda i { width: 22px; height: 6px; border-radius: 3px; display: inline-block; }
+
+.aviso { font-size: 14px; color: var(--tinta-2); }
+.pie { max-width: 760px; margin: 0 auto; padding: 16px; font-size: 13px; color: var(--tinta-2); border-top: 1px solid var(--borde); }
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neutrinos · Puertas Abiertas IF-UNAM 2026</title>
+<meta name="description" content="Animaciones interactivas sobre neutrinos: oscilaciones, luz de Cherenkov y la Vía Láctea vista con neutrinos.">
+<meta name="theme-color" content="#E3EEF8">
+<link rel="stylesheet" href="assets/estilo.css">
+<style>
+  .menu { display: grid; gap: 14px; margin-top: 20px; }
+  .menu a { display: flex; gap: 16px; align-items: center; text-decoration: none; color: var(--tinta); background: #fff; border: 2px solid var(--borde); border-radius: var(--radio); padding: 16px; min-height: 96px; }
+  .menu a:hover { border-color: var(--acento); }
+  .menu strong { display: block; font-size: 20px; color: var(--acento); }
+  .menu span { color: var(--tinta-2); font-size: 16px; }
+  .menu svg { flex: 0 0 auto; }
+  .dato { margin-top: 24px; background: var(--hielo); border-radius: var(--radio); padding: 16px; }
+  .dato b { font-size: 26px; color: var(--acento); display: block; }
+</style>
+</head>
+<body>
+<header class="barra"><div class="interior"><span class="marca">Puertas Abiertas 2026 · Instituto de Física, UNAM</span></div></header>
+<main>
+  <h1>Neutrinos: las partículas fantasma</h1>
+  <p class="lead">Tres experiencias para explorar desde tu celular. Toca una para empezar.</p>
+
+  <nav class="menu" aria-label="Animaciones">
+    <a href="oscilaciones/">
+      <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><circle cx="12" cy="28" r="9" fill="#1846A3"/><circle cx="30" cy="28" r="9" fill="#D9661F"/><circle cx="48" cy="28" r="7" fill="#0E7A65"/></svg>
+      <div><strong>Oscilaciones</strong><span>Mira cómo un neutrino cambia de identidad mientras viaja.</span></div>
+    </a>
+    <a href="cherenkov/">
+      <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><path d="M8 28 L52 8 L52 48 Z" fill="#4C9BF0" fill-opacity=".35" stroke="#1655C4" stroke-width="2"/><line x1="8" y1="28" x2="52" y2="28" stroke="#0B1F3A" stroke-width="4"/></svg>
+      <div><strong>Luz de Cherenkov</strong><span>Provoca un destello azul en el hielo, como en IceCube.</span></div>
+    </a>
+    <a href="via-lactea/">
+      <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><ellipse cx="28" cy="28" rx="25" ry="9" fill="none" stroke="#1655C4" stroke-width="3"/><circle cx="28" cy="28" r="6" fill="#D9661F"/></svg>
+      <div><strong>La Vía Láctea en neutrinos</strong><span>Nuestra galaxia vista con “ojos” de neutrino (2023).</span></div>
+    </a>
+  </nav>
+
+  <div class="dato">
+    <b>≈ 65 mil millones</b>
+    de neutrinos del Sol atraviesan cada centímetro cuadrado de tu piel cada segundo. No sientes nada: casi nunca chocan con la materia.
+  </div>
+
+  <h2>¿Quiénes somos?</h2>
+  <p>Somos un grupo de física teórica que estudia lo que hay <strong>más allá del Modelo Estándar</strong>. Los neutrinos tienen masa, y el Modelo Estándar no explica por qué: es una de las mejores pistas de nueva física.</p>
+  <p class="aviso">[Nombre del grupo] · [Integrantes] · [correo]</p>
+</main>
+<footer class="pie">Material de divulgación para el día de Puertas Abiertas del Instituto de Física, UNAM (13 de noviembre de 2026). Código bajo licencia MIT; textos bajo CC BY 4.0.</footer>
+</body>
+</html>

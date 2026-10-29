@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oscilaciones de neutrinos · IF-UNAM</title>
+<meta name="description" content="Simulación interactiva de oscilaciones de neutrinos con tres sabores.">
+<meta name="theme-color" content="#E3EEF8">
+<link rel="stylesheet" href="../assets/estilo.css">
+<style>
+  .barras { display: grid; gap: 8px; margin-top: 12px; }
+  .barra-p { display: grid; grid-template-columns: 110px 1fr 56px; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
+  .barra-p .riel { height: 18px; background: var(--hielo); border-radius: 9px; overflow: hidden; }
+  .barra-p .relleno { height: 100%; width: 0; border-radius: 9px; }
+  .barra-p .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .estado { font-weight: 800; font-size: 18px; margin: 10px 0 0; min-height: 27px; }
+</style>
+</head>
+<body>
+<header class="barra"><div class="interior"><a class="marca" href="../">Neutrinos · IF-UNAM</a><a class="volver" href="../">← Inicio</a></div></header>
+<main>
+  <h1>Un neutrino que cambia de identidad</h1>
+  <p class="lead">Hay tres tipos de neutrino. Mientras viaja, un neutrino puede <strong>transformarse</strong> de un tipo a otro. A esto se le llama <em>oscilación</em>.</p>
+
+  <section class="tarjeta" aria-label="Simulación">
+    <canvas id="viaje" class="lienzo" height="150" role="img" aria-label="Un neutrino viaja de la fuente al detector y su color cambia según su tipo"></canvas>
+    <p class="estado" id="estado" aria-live="polite"></p>
+    <div class="barras" id="barras">
+      <div class="barra-p"><span style="color:var(--nu-e)">Electrónico</span><div class="riel"><div class="relleno" id="b0" style="background:var(--nu-e)"></div></div><span class="num" id="n0">–</span></div>
+      <div class="barra-p"><span style="color:var(--nu-mu-texto)">Muónico</span><div class="riel"><div class="relleno" id="b1" style="background:var(--nu-mu)"></div></div><span class="num" id="n1">–</span></div>
+      <div class="barra-p"><span style="color:var(--nu-tau)">Tauónico</span><div class="riel"><div class="relleno" id="b2" style="background:var(--nu-tau)"></div></div><span class="num" id="n2">–</span></div>
+    </div>
+
+    <div class="controles">
+      <div class="grupo" role="group" aria-labelledby="et-esc">
+        <span class="etiqueta" id="et-esc">¿De dónde viene?</span>
+        <button type="button" data-esc="reactor">Reactor nuclear</button>
+        <button type="button" data-esc="dune">Acelerador (DUNE)</button>
+        <button type="button" data-esc="atm">Atmósfera (cruza la Tierra)</button>
+      </div>
+      <div class="grupo" role="group" aria-labelledby="et-sab">
+        <span class="etiqueta" id="et-sab">Tipo inicial</span>
+        <button type="button" data-sab="0">ν<sub>e</sub></button>
+        <button type="button" data-sab="1">ν<sub>μ</sub></button>
+        <button type="button" data-sab="2">ν<sub>τ</sub></button>
+      </div>
+      <label class="deslizador">Energía: <output id="o-e"></output>
+        <input type="range" id="energia" min="0" max="1000" step="1">
+      </label>
+      <label class="deslizador">Distancia recorrida: <output id="o-l"></output>
+        <input type="range" id="distancia" min="0" max="1000" step="1">
+      </label>
+      <div class="grupo">
+        <button type="button" id="play" class="boton principal">⏸ Pausa</button>
+      </div>
+    </div>
+  </section>
+
+  <h2>Probabilidad a lo largo del camino</h2>
+  <section class="tarjeta">
+    <canvas id="grafica" class="lienzo" height="240" role="img" aria-label="Gráfica de la probabilidad de encontrar cada tipo de neutrino en función de la distancia"></canvas>
+    <div class="leyenda" aria-hidden="true">
+      <span><i style="background:var(--nu-e)"></i>ν<sub>e</sub></span>
+      <span><i style="background:var(--nu-mu)"></i>ν<sub>μ</sub></span>
+      <span><i style="background:var(--nu-tau)"></i>ν<sub>τ</sub></span>
+    </div>
+  </section>
+
+  <details class="fisica">
+    <summary>Ver la física</summary>
+    <p>Los neutrinos que se producen (ν<sub>e</sub>, ν<sub>μ</sub>, ν<sub>τ</sub>) no tienen una masa definida: son <strong>mezclas cuánticas</strong> de tres estados con masas m<sub>1</sub>, m<sub>2</sub>, m<sub>3</sub>. Cada estado avanza con una fase distinta, y su interferencia cambia el tipo de neutrino que mediría un detector.</p>
+    <div class="formula">P(ν<sub>α</sub>→ν<sub>β</sub>) = | Σ<sub>i</sub> U<sub>βi</sub> U*<sub>αi</sub> exp(−i m<sub>i</sub>² L / 2E) |²</div>
+    <p style="margin-top:10px">Con unidades prácticas, la fase es 2.534 · m<sub>i</sub>²[eV²] · L[km] / E[GeV]. U es la matriz de mezcla PMNS. La simulación usa la fórmula exacta de tres sabores <strong>en el vacío</strong>.</p>
+    <table class="param" aria-label="Parámetros de oscilación usados">
+      <tr><th>Parámetro</th><th style="text-align:right">Valor</th></tr>
+      <tr><td>θ<sub>12</sub></td><td>33.7°</td></tr>
+      <tr><td>θ<sub>23</sub></td><td>48.5°</td></tr>
+      <tr><td>θ<sub>13</sub></td><td>8.5°</td></tr>
+      <tr><td>δ<sub>CP</sub></td><td>212°</td></tr>
+      <tr><td>Δm²<sub>21</sub></td><td>7.49 × 10⁻⁵ eV²</td></tr>
+      <tr><td>Δm²<sub>31</sub></td><td>2.51 × 10⁻³ eV²</td></tr>
+    </table>
+    <p class="aviso" style="margin-top:10px">Valores de referencia aproximados del ajuste global NuFIT 6.0 (2024), ordenamiento normal. Al atravesar la Tierra o el Sol, la materia modifica las oscilaciones (efecto MSW); aquí no se incluye, por eso no mostramos neutrinos solares. Que los neutrinos oscilen implica que <strong>tienen masa</strong>: algo que el Modelo Estándar no explica.</p>
+  </details>
+</main>
+<footer class="pie">Puertas Abiertas IF-UNAM 2026 · <a href="../">Otras animaciones</a></footer>
+
+<script>
+(function () {
+  "use strict";
+  // ---------- Física: tres sabores en el vacío ----------
+  var D2R = Math.PI / 180;
+  var P = { t12: 33.7 * D2R, t23: 48.5 * D2R, t13: 8.5 * D2R, d: 212 * D2R, dm21: 7.49e-5, dm31: 2.51e-3 };
+  function C(re, im) { return [re, im || 0]; }
+  function mul(a, b) { return [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]; }
+  function add(a, b) { return [a[0] + b[0], a[1] + b[1]]; }
+  function sc(a, s) { return [a[0] * s, a[1] * s]; }
+  function conj(a) { return [a[0], -a[1]]; }
+  function pmns() {
+    var s12 = Math.sin(P.t12), c12 = Math.cos(P.t12), s23 = Math.sin(P.t23), c23 = Math.cos(P.t23), s13 = Math.sin(P.t13), c13 = Math.cos(P.t13);
+    var eid = C(Math.cos(P.d), Math.sin(P.d)), emid = conj(eid);
+    return [
+      [C(c12 * c13), C(s12 * c13), sc(emid, s13)],
+      [add(C(-s12 * c23), sc(eid, -c12 * s23 * s13)), add(C(c12 * c23), sc(eid, -s12 * s23 * s13)), C(s23 * c13)],
+      [add(C(s12 * s23), sc(eid, -c12 * c23 * s13)), add(C(-c12 * s23), sc(eid, -s12 * c23 * s13)), C(c23 * c13)]
+    ];
+  }
+  var U = pmns();
+  var M2 = [0, P.dm21, P.dm31];
+  // Probabilidades desde el sabor a, a distancia L (km) y energía E (GeV). anti: antineutrino (U -> U*)
+  function probs(a, L, E, anti) {
+    var out = [0, 0, 0];
+    for (var b = 0; b < 3; b++) {
+      var amp = C(0, 0);
+      for (var i = 0; i < 3; i++) {
+        var ub = anti ? conj(U[b][i]) : U[b][i];
+        var ua = anti ? U[a][i] : conj(U[a][i]);
+        var ph = -2.534 * M2[i] * L / E;
+        amp = add(amp, mul(mul(ub, ua), C(Math.cos(ph), Math.sin(ph))));
+      }
+      out[b] = amp[0] * amp[0] + amp[1] * amp[1];
+    }
+    return out;
+  }
+
+  // ---------- Escenarios ----------
+  var ESC = {
+    reactor: { E: 0.004, Lmax: 200, sab: 0, anti: true, fuente: "Reactor", det: "Detector", texto: "antineutrinos de reactor (≈ 4 MeV)" },
+    dune: { E: 2.5, Lmax: 1300, sab: 1, anti: false, fuente: "Fermilab", det: "DUNE", texto: "haz de acelerador, 1 300 km como en DUNE" },
+    atm: { E: 1, Lmax: 12742, sab: 1, anti: false, fuente: "Atmósfera", det: "Detector", texto: "cruzando todo el diámetro de la Tierra" }
+  };
+  var COLORES = ["#1846A3", "#D9661F", "#0E7A65"];
+  var RGB = [[24, 70, 163], [217, 102, 31], [14, 122, 101]];
+  var NOMBRES = ["electrónico", "muónico", "tauónico"];
+  var E_MIN = 0.001, E_MAX = 100; // GeV
+
+  var st = { esc: "dune", sab: 1, E: 2.5, Lmax: 1300, anti: false, x: 0, jugando: true };
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) st.jugando = false;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var cvV = $("viaje"), cvG = $("grafica");
+  var inE = $("energia"), inL = $("distancia"), btnPlay = $("play");
+  var curva = null;
+
+  function eDesdeSlider(v) { return E_MIN * Math.pow(E_MAX / E_MIN, v / 1000); }
+  function sliderDesdeE(E) { return Math.round(1000 * Math.log(E / E_MIN) / Math.log(E_MAX / E_MIN)); }
+  function fmtE(E) { return E < 1 ? (E * 1000).toFixed(E < 0.01 ? 1 : 0) + " MeV" : E.toFixed(E < 10 ? 2 : 0) + " GeV"; }
+  function fmtL(L) { return L < 10 ? L.toFixed(1) + " km" : Math.round(L).toLocaleString("es-MX") + " km"; }
+
+  function prepararCanvas(cv) {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = cv.clientWidth, h = parseInt(cv.getAttribute("height"), 10);
+    cv.style.height = h + "px";
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: w, h: h };
+  }
+
+  function calcularCurva() {
+    var N = 900, pts = [];
+    for (var k = 0; k <= N; k++) { var L = st.Lmax * k / N; pts.push(probs(st.sab, L, st.E, st.anti)); }
+    curva = pts;
+  }
+
+  function dibujarGrafica() {
+    var g = prepararCanvas(cvG), ctx = g.ctx, w = g.w, h = g.h;
+    var m = { l: 40, r: 10, t: 12, b: 30 }, pw = w - m.l - m.r, ph = h - m.t - m.b;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(m.l, m.t, pw, ph);
+    ctx.strokeStyle = "#D5DFEA"; ctx.lineWidth = 1; ctx.fillStyle = "#44546A"; ctx.font = "12px system-ui, sans-serif";
+    for (var y = 0; y <= 1.001; y += 0.5) {
+      var yy = m.t + ph * (1 - y);
+      ctx.beginPath(); ctx.moveTo(m.l, yy); ctx.lineTo(m.l + pw, yy); ctx.stroke();
+      ctx.textAlign = "right"; ctx.fillText(Math.round(y * 100) + "%", m.l - 6, yy + 4);
+    }
+    ctx.textAlign = "center";
+    for (var t = 0; t <= 4; t++) { ctx.fillText(fmtL(st.Lmax * t / 4), m.l + pw * t / 4, h - 8); }
+    var N = curva.length - 1;
+    for (var b = 0; b < 3; b++) {
+      ctx.strokeStyle = COLORES[b]; ctx.lineWidth = 2.5; ctx.beginPath();
+      for (var k = 0; k <= N; k++) {
+        var px = m.l + pw * k / N, py = m.t + ph * (1 - curva[k][b]);
+        if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    var cx = m.l + pw * st.x;
+    ctx.strokeStyle = "#0B1F3A"; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(cx, m.t); ctx.lineTo(cx, m.t + ph); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  function dibujarViaje(p) {
+    var g = prepararCanvas(cvV), ctx = g.ctx, w = g.w, h = g.h;
+    ctx.clearRect(0, 0, w, h);
+    var x0 = 54, x1 = w - 54, yc = 70;
+    // vía
+    ctx.strokeStyle = "#B9CBE0"; ctx.lineWidth = 4; ctx.setLineDash([10, 8]);
+    ctx.beginPath(); ctx.moveTo(x0, yc); ctx.lineTo(x1, yc); ctx.stroke(); ctx.setLineDash([]);
+    // fuente y detector
+    ctx.fillStyle = "#0B1F3A"; ctx.fillRect(x0 - 34, yc - 26, 30, 52); ctx.fillRect(x1 + 4, yc - 30, 32, 60);
+    ctx.font = "600 13px system-ui, sans-serif"; ctx.fillStyle = "#0B1F3A"; ctx.textAlign = "center";
+    var e = ESC[st.esc];
+    ctx.fillText(e.fuente, x0 - 19, yc + 46); ctx.fillText(e.det, x1 + 20, yc + 50);
+    // estela de colores
+    var N = 60;
+    for (var k = 0; k < N; k++) {
+      var f = st.x * k / N, idx = Math.round(f * (curva.length - 1)), q = curva[idx];
+      ctx.fillStyle = mezcla(q, 0.35); ctx.beginPath(); ctx.arc(x0 + (x1 - x0) * f, yc, 5, 0, 2 * Math.PI); ctx.fill();
+    }
+    // neutrino
+    var px = x0 + (x1 - x0) * st.x;
+    ctx.fillStyle = mezcla(p, 1); ctx.beginPath(); ctx.arc(px, yc, 18, 0, 2 * Math.PI); ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "#FFFFFF"; ctx.stroke();
+    ctx.fillStyle = "#FFFFFF"; ctx.font = "700 16px system-ui, sans-serif"; ctx.fillText("ν", px, yc + 6);
+  }
+  function mezcla(p, a) {
+    var s = p[0] + p[1] + p[2] || 1, r = 0, gg = 0, bb = 0;
+    for (var i = 0; i < 3; i++) { r += RGB[i][0] * p[i] / s; gg += RGB[i][1] * p[i] / s; bb += RGB[i][2] * p[i] / s; }
+    return "rgba(" + Math.round(r) + "," + Math.round(gg) + "," + Math.round(bb) + "," + a + ")";
+  }
+
+  var ultimoEstado = "";
+  function actualizarLecturas(p) {
+    for (var i = 0; i < 3; i++) { $("b" + i).style.width = (p[i] * 100).toFixed(1) + "%"; $("n" + i).textContent = Math.round(p[i] * 100) + "%"; }
+    var max = p.indexOf(Math.max.apply(null, p));
+    var txt = "Ahora lo más probable es detectarlo como " + (st.anti && max === 0 ? "anti" : "") + "neutrino " + NOMBRES[max] + ".";
+    if (txt !== ultimoEstado) { $("estado").textContent = txt; $("estado").style.color = COLORES[max]; ultimoEstado = txt; }
+    $("o-l").textContent = fmtL(st.x * st.Lmax);
+  }
+
+  function render() {
+    var p = probs(st.sab, st.x * st.Lmax, st.E, st.anti);
+    dibujarViaje(p); dibujarGrafica(); actualizarLecturas(p);
+    inL.value = Math.round(st.x * 1000);
+  }
+
+  function marcar(sel, attr, val) {
+    document.querySelectorAll(sel).forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute(attr) === String(val) ? "true" : "false"); });
+  }
+  function ponerEscenario(k) {
+    var e = ESC[k]; st.esc = k; st.E = e.E; st.Lmax = e.Lmax; st.sab = e.sab; st.anti = e.anti; st.x = 0;
+    inE.value = sliderDesdeE(st.E); $("o-e").textContent = fmtE(st.E);
+    marcar("[data-esc]", "data-esc", k); marcar("[data-sab]", "data-sab", st.sab);
+    calcularCurva(); render();
+  }
+
+  document.querySelectorAll("[data-esc]").forEach(function (b) { b.addEventListener("click", function () { ponerEscenario(b.getAttribute("data-esc")); }); });
+  document.querySelectorAll("[data-sab]").forEach(function (b) {
+    b.addEventListener("click", function () { st.sab = +b.getAttribute("data-sab"); st.anti = st.esc === "reactor" && st.sab === 0; marcar("[data-sab]", "data-sab", st.sab); calcularCurva(); render(); });
+  });
+  inE.addEventListener("input", function () { st.E = eDesdeSlider(+inE.value); $("o-e").textContent = fmtE(st.E); calcularCurva(); render(); });
+  inL.addEventListener("input", function () { st.x = +inL.value / 1000; pausar(true); render(); });
+  function pausar(si) { st.jugando = !si; btnPlay.textContent = st.jugando ? "⏸ Pausa" : "▶ Reproducir"; }
+  btnPlay.addEventListener("click", function () { pausar(st.jugando); if (st.jugando && st.x >= 1) st.x = 0; });
+
+  var tPrev = null, DUR = 9000; // ms por recorrido
+  function bucle(t) {
+    if (tPrev === null) tPrev = t;
+    var dt = t - tPrev; tPrev = t;
+    if (st.jugando && !document.hidden) {
+      st.x += dt / DUR;
+      if (st.x > 1) st.x = 0;
+      render();
+    }
+    requestAnimationFrame(bucle);
+  }
+  window.addEventListener("resize", render);
+  pausar(!st.jugando);
+  ponerEscenario("dune");
+  requestAnimationFrame(bucle);
+})();
+</script>
+</body>
+</html>

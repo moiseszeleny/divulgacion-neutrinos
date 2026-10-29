@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Vía Láctea vista con neutrinos · IF-UNAM</title>
+<meta name="description" content="Compara nuestra galaxia en luz visible y en neutrinos: la primera imagen de la Vía Láctea hecha con neutrinos (IceCube, 2023).">
+<meta name="theme-color" content="#E3EEF8">
+<link rel="stylesheet" href="../assets/estilo.css">
+<style>
+  .comparar { position: relative; width: 100%; aspect-ratio: 2 / 1; border-radius: 14px; overflow: hidden; background: #0B1F3A; touch-action: pan-y; user-select: none; }
+  .comparar canvas, .comparar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .comparar img[hidden] { display: none; }
+  .comparar .capa-nu { clip-path: inset(0 0 0 50%); }
+  .comparar .linea { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; margin-left: -2px; background: #fff; pointer-events: none; }
+  .comparar .tirador { position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: #fff; border: 3px solid var(--acento); pointer-events: none; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--acento); }
+  .etq { position: absolute; top: 10px; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,.92); font-size: 13px; font-weight: 700; color: var(--tinta); pointer-events: none; }
+  .etq.izq { left: 10px; } .etq.der { right: 10px; }
+  .credito { font-size: 13px; color: var(--tinta-2); margin-top: 8px; }
+  .hecho { display: grid; gap: 10px; margin-top: 12px; }
+  .hecho div { background: #fff; border: 2px solid var(--borde); border-radius: 14px; padding: 12px 14px; }
+  .hecho b { color: var(--acento); }
+</style>
+</head>
+<body>
+<header class="barra"><div class="interior"><a class="marca" href="../">Neutrinos · IF-UNAM</a><a class="volver" href="../">← Inicio</a></div></header>
+<main>
+  <h1>Nuestra galaxia, vista con neutrinos</h1>
+  <p class="lead">En 2023, el observatorio IceCube obtuvo la <strong>primera imagen de la Vía Láctea hecha con neutrinos</strong> en lugar de luz. Desliza para comparar.</p>
+
+  <section class="tarjeta" aria-label="Comparación de imágenes">
+    <div class="comparar" id="comparar">
+      <canvas id="c-opt" aria-hidden="true"></canvas>
+      <img id="img-opt" alt="La Vía Láctea en luz visible" src="../assets/img/via-lactea-optica.jpg" hidden>
+      <div class="capa-nu" id="capa-nu" style="position:absolute;inset:0">
+        <canvas id="c-nu" aria-hidden="true"></canvas>
+        <img id="img-nu" alt="La Vía Láctea en neutrinos según IceCube" src="../assets/img/via-lactea-neutrinos.jpg" hidden>
+      </div>
+      <div class="linea" id="linea"></div>
+      <div class="tirador" id="tirador" aria-hidden="true">⇆</div>
+      <span class="etq izq">Luz visible</span>
+      <span class="etq der">Neutrinos</span>
+    </div>
+    <label class="deslizador" style="margin-top:12px">Desliza para comparar
+      <input type="range" id="corte" min="0" max="100" value="50" aria-label="Proporción de la imagen en neutrinos">
+    </label>
+    <p class="credito" id="credito">Ilustración esquemática. Consulta la imagen original en los enlaces de abajo.</p>
+  </section>
+
+  <div class="hecho">
+    <div><b>¿Por qué es importante?</b> Hasta ahora conocíamos la galaxia por la luz, las ondas de radio o los rayos X. Ahora también la “vemos” con partículas que atraviesan el polvo y el gas sin desviarse.</div>
+    <div><b>¿De dónde salen?</b> Los rayos cósmicos chocan con el gas de la galaxia y producen neutrinos. Por eso brillan más a lo largo del plano de la Vía Láctea.</div>
+    <div><b>¿Cuántos?</b> El análisis usó unos 60 000 neutrinos registrados en 10 años, con ayuda de inteligencia artificial para separarlos del ruido.</div>
+  </div>
+
+  <h2>Para saber más</h2>
+  <p><a href="https://news.wisc.edu/icecube-shows-milky-way-galaxy-is-a-neutrino-desert/" rel="noopener">Comunicado de la Universidad de Wisconsin–Madison (inglés)</a></p>
+  <p><a href="https://doi.org/10.1126/science.adc9818" rel="noopener">Artículo original: IceCube Collaboration, <i>Science</i> 380, 1338 (2023)</a></p>
+
+  <details class="fisica">
+    <summary>Ver la física</summary>
+    <p>IceCube buscó neutrinos “en cascada” (de tipo electrónico y tauónico), que dejan una bola de luz en el hielo. Su dirección se mide con menos precisión que la de los muones, pero tienen mucho menos ruido de fondo de la atmósfera en el cielo del sur, donde está el centro galáctico.</p>
+    <p>La señal concuerda con la emisión difusa esperada por choques de rayos cósmicos con el medio interestelar, con una significancia de 4.5σ.</p>
+  </details>
+</main>
+<footer class="pie">Puertas Abiertas IF-UNAM 2026 · <a href="../">Otras animaciones</a></footer>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var box = $("comparar"), capa = $("capa-nu"), linea = $("linea"), tir = $("tirador"), rango = $("corte");
+  var reales = 0;
+
+  // Si existen las imágenes reales en assets/img, se usan; si no, se dibuja una ilustración.
+  ["img-opt", "img-nu"].forEach(function (id) {
+    var im = $(id);
+    im.addEventListener("load", function () { im.hidden = false; reales++; if (reales === 2) $("credito").textContent = "Imagen: IceCube Collaboration / U.S. National Science Foundation / ESO (ver créditos en el README)."; });
+  });
+
+  function rnd(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+  function dibujar() {
+    var w = box.clientWidth, h = box.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    [["c-opt", false], ["c-nu", true]].forEach(function (par) {
+      var cv = $(par[0]), nu = par[1];
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = nu ? "#0A1530" : "#05070F"; ctx.fillRect(0, 0, w, h);
+      var r = rnd(7), yc = h / 2;
+      if (!nu) {
+        for (var i = 0; i < 1400; i++) {
+          var x = r() * w, d = (r() - 0.5) * (r() < 0.6 ? 0.25 : 1) * h, a = Math.max(0.15, 1 - Math.abs(d) / (h * 0.5));
+          ctx.fillStyle = "rgba(255,248,230," + (a * (0.4 + 0.6 * r())).toFixed(2) + ")";
+          ctx.fillRect(x, yc + d, 1.2 + r(), 1.2 + r());
+        }
+        var gb = ctx.createRadialGradient(w / 2, yc, 4, w / 2, yc, w * 0.22);
+        gb.addColorStop(0, "rgba(255,230,190,0.55)"); gb.addColorStop(1, "rgba(255,230,190,0)");
+        ctx.fillStyle = gb; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "rgba(20,12,8,0.55)";
+        for (var k = 0; k < 40; k++) { ctx.beginPath(); ctx.ellipse(r() * w, yc + (r() - 0.5) * h * 0.06, 10 + r() * 40, 2 + r() * 4, 0, 0, 2 * Math.PI); ctx.fill(); }
+      } else {
+        for (var j = 0; j < 9; j++) {
+          var cx = w * (0.08 + 0.84 * j / 8) + (r() - 0.5) * 30, rr = h * (0.10 + 0.16 * r()) * (1 - Math.abs(j - 4) / 7);
+          var g = ctx.createRadialGradient(cx, yc, 1, cx, yc, rr + 10);
+          g.addColorStop(0, "rgba(76,155,240,0.85)"); g.addColorStop(0.5, "rgba(22,85,196,0.45)"); g.addColorStop(1, "rgba(22,85,196,0)");
+          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+        }
+        ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.setLineDash([6, 6]);
+        ctx.beginPath(); ctx.moveTo(0, yc); ctx.lineTo(w, yc); ctx.stroke(); ctx.setLineDash([]);
+      }
+    });
+  }
+  function corte(p) {
+    p = Math.max(0, Math.min(100, p));
+    capa.style.clipPath = "inset(0 0 0 " + p + "%)"; linea.style.left = p + "%"; tir.style.left = p + "%"; rango.value = p;
+  }
+  rango.addEventListener("input", function () { corte(+rango.value); });
+  var arrastrando = false;
+  function desdeEvento(e) { var b = box.getBoundingClientRect(); corte(100 * (e.clientX - b.left) / b.width); }
+  box.addEventListener("pointerdown", function (e) { arrastrando = true; box.setPointerCapture(e.pointerId); desdeEvento(e); });
+  box.addEventListener("pointermove", function (e) { if (arrastrando) desdeEvento(e); });
+  box.addEventListener("pointerup", function () { arrastrando = false; });
+  window.addEventListener("resize", dibujar);
+  dibujar(); corte(50);
+})();
+</script>
+</body>
+</html>
