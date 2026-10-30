@@ -108,17 +108,27 @@
   var U = pmns();
   var M2 = [0, P.dm21, P.dm31];
   // Probabilidades desde el sabor a, a distancia L (km) y energía E (GeV). anti: antineutrino (U -> U*)
-  function probs(a, L, E, anti) {
+  // dL (km, opcional): resolución en distancia. Las oscilaciones más cortas que dL se promedian (ventana
+  // gaussiana de ancho dL) en vez de dibujarse como ruido; las más largas no cambian.
+  function probs(a, L, E, anti, dL) {
     var out = [0, 0, 0];
     for (var b = 0; b < 3; b++) {
-      var amp = C(0, 0);
+      var A = [];
       for (var i = 0; i < 3; i++) {
         var ub = anti ? conj(U[b][i]) : U[b][i];
         var ua = anti ? U[a][i] : conj(U[a][i]);
-        var ph = -2.534 * M2[i] * L / E;
-        amp = add(amp, mul(mul(ub, ua), C(Math.cos(ph), Math.sin(ph))));
+        A.push(mul(ub, ua));
       }
-      out[b] = amp[0] * amp[0] + amp[1] * amp[1];
+      var p = 0;
+      for (i = 0; i < 3; i++) {
+        p += A[i][0] * A[i][0] + A[i][1] * A[i][1];
+        for (var j = i + 1; j < 3; j++) {
+          var dm = M2[i] - M2[j], ph = -2.534 * dm * L / E, x = 2.534 * dm * (dL || 0) / E;
+          var amort = Math.exp(-x * x / 2);
+          p += 2 * amort * mul(mul(A[i], conj(A[j])), C(Math.cos(ph), Math.sin(ph)))[0];
+        }
+      }
+      out[b] = Math.max(0, p);
     }
     return out;
   }
@@ -151,14 +161,14 @@
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var w = cv.clientWidth, h = parseInt(cv.getAttribute("height"), 10);
     cv.style.height = h + "px";
-    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
     var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return { ctx: ctx, w: w, h: h };
   }
 
   function calcularCurva() {
     var N = 900, pts = [];
-    for (var k = 0; k <= N; k++) { var L = st.Lmax * k / N; pts.push(probs(st.sab, L, st.E, st.anti)); }
+    for (var k = 0; k <= N; k++) { var L = st.Lmax * k / N; pts.push(probs(st.sab, L, st.E, st.anti, st.Lmax / 600)); }
     curva = pts;
   }
 
@@ -229,7 +239,7 @@
   }
 
   function render() {
-    var p = probs(st.sab, st.x * st.Lmax, st.E, st.anti);
+    var p = probs(st.sab, st.x * st.Lmax, st.E, st.anti, st.Lmax / 600);
     dibujarViaje(p); dibujarGrafica(); actualizarLecturas(p);
     inL.value = Math.round(st.x * 1000);
   }

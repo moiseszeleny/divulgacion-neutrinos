@@ -133,8 +133,8 @@
     return x > w + 0.8 * v; // breve pausa al final antes de reiniciar
   }
 
-  inV.addEventListener("input", function () { A.beta = +inV.value / 1000; lecturas(); reiniciar(); });
-  document.querySelectorAll("[data-n]").forEach(function (b) { b.addEventListener("click", function () { A.n = +b.getAttribute("data-n"); marcarMedio(); lecturas(); reiniciar(); }); });
+  inV.addEventListener("input", function () { A.beta = +inV.value / 1000; lecturas(); reiniciar(); dibujarOndas(); });
+  document.querySelectorAll("[data-n]").forEach(function (b) { b.addEventListener("click", function () { A.n = +b.getAttribute("data-n"); marcarMedio(); lecturas(); reiniciar(); dibujarOndas(); }); });
   function pausar(si) { A.jugando = !si; btn.textContent = A.jugando ? "⏸ Pausa" : "▶ Reproducir"; }
   btn.addEventListener("click", function () { pausar(A.jugando); });
 
@@ -161,7 +161,7 @@
     var ang = Math.random() * 2 * Math.PI, dir = [Math.cos(ang), Math.sin(ang)];
     var vtx = [w * (0.3 + 0.4 * Math.random()), h * (0.3 + 0.4 * Math.random())];
     var c = Math.max(w, h) / 1.6; // px/s para la luz (cámara lenta)
-    var cables = geom(w, h), golpes = [], tmax = 0, dmax = Math.min(w, h) * 0.42;
+    var cables = geom(w, h), golpes = [], tmin = Infinity, tmax = 0, dmax = Math.min(w, h) * 0.42;
     cables.forEach(function (s) { s.forEach(function (p) {
       var rx = p.x - vtx[0], ry = p.y - vtx[1];
       var sp = rx * dir[0] + ry * dir[1], d = Math.abs(rx * dir[1] - ry * dir[0]);
@@ -169,9 +169,9 @@
       if (se < 0 || d > dmax) return;
       var t = se / c + (d / Math.sin(TH)) / (c / N_HIELO);
       var q = Math.exp(-d / (dmax * 0.45)) / (0.3 + d / dmax);
-      golpes.push({ x: p.x, y: p.y, t: t, q: q }); if (t > tmax) tmax = t;
+      golpes.push({ x: p.x, y: p.y, t: t, q: q }); if (t > tmax) tmax = t; if (t < tmin) tmin = t;
     }); });
-    B = { dir: dir, vtx: vtx, c: c, golpes: golpes, tmax: tmax || 1, t: -0.9, w: w, h: h, fin: false };
+    B = { dir: dir, vtx: vtx, c: c, golpes: golpes, tmin: golpes.length ? tmin : 0, tmax: tmax || 1, t: -0.9, w: w, h: h, fin: false };
     $("estado2").textContent = "Llega un neutrino muónico… no deja rastro hasta que choca.";
     $("lanzar").disabled = true;
   }
@@ -205,7 +205,7 @@
     B.golpes.forEach(function (gp) {
       if (gp.t > B.t) return;
       var r = 4 + 13 * Math.min(1, gp.q);
-      ctx.fillStyle = colorTiempo(gp.t / B.tmax);
+      ctx.fillStyle = colorTiempo((gp.t - B.tmin) / Math.max(1e-6, B.tmax - B.tmin));
       ctx.beginPath(); ctx.arc(gp.x, gp.y, r, 0, 2 * Math.PI); ctx.fill();
     });
     if (B.t > B.tmax + 0.4 && !B.fin) {
@@ -231,7 +231,11 @@
     }
     requestAnimationFrame(bucle);
   }
-  window.addEventListener("resize", function () { dibujarOndas(); dibujarDetector(); });
+  window.addEventListener("resize", function () {
+    // Los sensores encendidos se calcularon con el tamaño anterior: si cambió (p. ej. al girar el celular), se descarta el evento.
+    if (B && B.w !== cvD.clientWidth) { B = null; $("lanzar").disabled = false; $("estado2").textContent = ""; }
+    dibujarOndas(); dibujarDetector();
+  });
   marcarMedio(); lecturas(); pausar(!A.jugando); dibujarOndas(); dibujarDetector();
   requestAnimationFrame(bucle);
 })();
