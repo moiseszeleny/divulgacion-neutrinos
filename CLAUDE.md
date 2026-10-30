@@ -25,7 +25,7 @@ Pushing to `main` redeploys the site in a couple of minutes (`.nojekyll` disable
 
 ### Pages
 
-- `oscilaciones/` — exact three-flavor vacuum oscillation probabilities (hand-rolled complex arithmetic, PMNS matrix, NuFIT 6.0 normal ordering; amplitude phase `2.534·m²·L/E` with L in km, E in GeV, m² in eV²; antineutrinos via U → U*). Scenarios reactor / DUNE / atmospheric. No MSW matter effects by design (the page text says so; solar neutrinos intentionally omitted).
+- `oscilaciones/` — exact three-flavor vacuum oscillation probabilities (hand-rolled complex arithmetic, PMNS matrix, NuFIT 6.0 normal ordering; interference terms use phase `2.534·Δm²_ij·L/E` with L in km, E in GeV, Δm² in eV²; antineutrinos via U → U*). `probs(a, L, E, anti, dL)` takes an optional distance resolution `dL`: oscillations faster than `dL` are Gaussian-averaged (damping `exp(-x²/2)`) so they don't render as noise. Scenarios reactor / DUNE / atmospheric. No MSW matter effects by design (the page text says so; solar neutrinos intentionally omitted).
 - `cherenkov/` — wavefronts and Cherenkov cone, cos θ = 1/(nβ) with n = 1.31 ice, 1.33 water, 1.0003 air; simulated IceCube event colored by arrival time.
 - `via-lactea/` — Milky Way in visible light vs. neutrinos (IceCube 2023). Shows a browser-generated schematic unless `assets/img/via-lactea-optica.jpg` and `assets/img/via-lactea-neutrinos.jpg` exist (2:1, ~1600×800, <250 KB each); the `<img>` tags are `hidden` and revealed when they load. Image credit text lives in that page.
 
