@@ -89,7 +89,7 @@ Mientras no haya imágenes, `/via-lactea/` muestra una **ilustración esquemáti
 
 ## Pendientes
 
-- [ ] Completar nombre del grupo, integrantes y correo en `index.html`.
+- [x] Enlace al Departamento de Física Teórica en `index.html`.
 - [ ] Agregar las imágenes reales de la Vía Láctea, con su crédito.
 - [ ] Probar los QR impresos al tamaño final.
 
