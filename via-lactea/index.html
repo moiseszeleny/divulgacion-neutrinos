@@ -119,7 +119,7 @@
   function desdeEvento(e) { var b = box.getBoundingClientRect(); corte(100 * (e.clientX - b.left) / b.width); }
   box.addEventListener("pointerdown", function (e) { arrastrando = true; box.setPointerCapture(e.pointerId); desdeEvento(e); });
   box.addEventListener("pointermove", function (e) { if (arrastrando) desdeEvento(e); });
-  box.addEventListener("pointerup", function () { arrastrando = false; });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (ev) { box.addEventListener(ev, function () { arrastrando = false; }); });
   window.addEventListener("resize", dibujar);
   dibujar(); corte(50);
 })();
