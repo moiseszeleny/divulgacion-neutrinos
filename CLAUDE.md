@@ -37,4 +37,4 @@ The printed QR codes (`qr/*.svg|png`) point to `q/osc/`, `q/cherenkov/`, `q/gala
 
 - Files are sometimes copied in from Windows, which creates `*:Zone.Identifier` junk files; `.gitignore` excludes them.
 - `.gitattributes` forces LF line endings.
-- Open TODOs (from README): group name/members/email in `index.html`, real Milky Way images with credit, testing printed QR size.
+- Open TODOs (from README): real Milky Way images with credit, testing printed QR size.
