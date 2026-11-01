@@ -157,11 +157,17 @@
   function fmtE(E) { return E < 1 ? (E * 1000).toFixed(E < 0.01 ? 1 : 0) + " MeV" : E.toFixed(E < 10 ? 2 : 0) + " GeV"; }
   function fmtL(L) { return L < 10 ? L.toFixed(1) + " km" : Math.round(L).toLocaleString("es-MX") + " km"; }
 
+  // Altura de diseño (en px CSS). Se guarda aparte porque asignar cv.height reescribe el atributo height.
+  function altoLogico(cv) {
+    if (!cv.getAttribute("data-alto")) cv.setAttribute("data-alto", cv.getAttribute("height"));
+    return parseInt(cv.getAttribute("data-alto"), 10);
+  }
   function prepararCanvas(cv) {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var w = cv.clientWidth, h = parseInt(cv.getAttribute("height"), 10);
+    var w = cv.clientWidth, h = altoLogico(cv);
     cv.style.height = h + "px";
-    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    var W = Math.round(w * dpr), H = Math.round(h * dpr);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return { ctx: ctx, w: w, h: h };
   }
@@ -184,7 +190,8 @@
       ctx.textAlign = "right"; ctx.fillText(Math.round(y * 100) + "%", m.l - 6, yy + 4);
     }
     ctx.textAlign = "center";
-    for (var t = 0; t <= 4; t++) { ctx.fillText(fmtL(st.Lmax * t / 4), m.l + pw * t / 4, h - 8); }
+    // En pantallas angostas solo 0, mitad y final, para que las etiquetas no se encimen
+    for (var t = 0; t <= 4; t += (pw < 420 ? 2 : 1)) { ctx.textAlign = t === 4 ? "right" : "center"; ctx.fillText(fmtL(st.Lmax * t / 4), t === 4 ? w - 4 : m.l + pw * t / 4, h - 8); }
     var N = curva.length - 1;
     for (var b = 0; b < 3; b++) {
       ctx.strokeStyle = COLORES[b]; ctx.lineWidth = 2.5; ctx.beginPath();
