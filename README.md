@@ -71,14 +71,16 @@ python3 -m http.server 8000
 # abre http://localhost:8000
 ```
 
-## Imágenes reales de la Vía Láctea (opcional)
+## Imágenes de la Vía Láctea
 
-Mientras no haya imágenes, `/via-lactea/` muestra una **ilustración esquemática** generada en el navegador. Para usar las imágenes reales:
+`/via-lactea/` usa dos imágenes alineadas de 1600 × 800 px. Si faltan, la página muestra una **ilustración esquemática** generada en el navegador.
 
-1. Descarga la imagen de la Vía Láctea en neutrinos y la versión en luz visible del comunicado de IceCube (junio de 2023).
-2. **Revisa su licencia de uso** y el crédito exacto que piden. El crédito publicado con el comunicado es del tipo *IceCube Collaboration / U.S. National Science Foundation (Lily Le & Shawn Johnson) / ESO (S. Brunier)*; verifícalo en la fuente.
-3. Guárdalas como `assets/img/via-lactea-optica.jpg` y `assets/img/via-lactea-neutrinos.jpg`, recortadas a la misma proyección y proporción 2:1, de unos 1600 × 800 px y menos de 250 KB cada una.
-4. La página las detecta sola. Si cambia el crédito, actualiza el texto en `via-lactea/index.html`.
+| Archivo | Fuente | Crédito | Licencia |
+|---|---|---|---|
+| `assets/img/via-lactea-optica.jpg` | [ESO eso0932a, “The Milky Way panorama”](https://www.eso.org/public/images/eso0932a/) | ESO/S. Brunier | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.es) |
+| `assets/img/via-lactea-neutrinos.jpg` | [Comunicado de IceCube, 29 jun 2023](https://icecube.wisc.edu/news/press-releases/2023/06/our-galaxy-seen-through-a-new-lens-neutrinos-detected-by-icecube/) (composición artística) | IceCube Collaboration/U.S. National Science Foundation (Lily Le & Shawn Johnson)/ESO (S. Brunier) | Imagen de prensa, se reproduce con crédito |
+
+Modificaciones: de la panorámica de ESO se recortó una ventana 2:1 de unos 280° centrada en el centro galáctico. La composición de IceCube, que usa la misma panorámica de fondo pero estirada, se reproyectó con una transformación afín (ajustada con unas 80 estrellas coincidentes) para que ambas queden alineadas en el comparador. Las dos se redimensionaron y comprimieron a menos de 250 KB.
 
 ## Física y fuentes
 
@@ -90,7 +92,7 @@ Mientras no haya imágenes, `/via-lactea/` muestra una **ilustración esquemáti
 ## Pendientes
 
 - [x] Enlace al Departamento de Física Teórica en `index.html`.
-- [ ] Agregar las imágenes reales de la Vía Láctea, con su crédito.
+- [x] Agregar las imágenes reales de la Vía Láctea, con su crédito.
 - [ ] Probar los QR impresos al tamaño final.
 
 ## Licencia

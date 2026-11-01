@@ -27,7 +27,7 @@ Pushing to `main` redeploys the site in a couple of minutes (`.nojekyll` disable
 
 - `oscilaciones/` — exact three-flavor vacuum oscillation probabilities (hand-rolled complex arithmetic, PMNS matrix, NuFIT 6.0 normal ordering; interference terms use phase `2.534·Δm²_ij·L/E` with L in km, E in GeV, Δm² in eV²; antineutrinos via U → U*). `probs(a, L, E, anti, dL)` takes an optional distance resolution `dL`: oscillations faster than `dL` are Gaussian-averaged (damping `exp(-x²/2)`) so they don't render as noise. Scenarios reactor / DUNE / atmospheric. No MSW matter effects by design (the page text says so; solar neutrinos intentionally omitted).
 - `cherenkov/` — wavefronts and Cherenkov cone, cos θ = 1/(nβ) with n = 1.31 ice, 1.33 water, 1.0003 air; simulated IceCube event colored by arrival time.
-- `via-lactea/` — Milky Way in visible light vs. neutrinos (IceCube 2023). Shows a browser-generated schematic unless `assets/img/via-lactea-optica.jpg` and `assets/img/via-lactea-neutrinos.jpg` exist (2:1, ~1600×800, <250 KB each); the `<img>` tags are `hidden` and revealed when they load. Image credit text lives in that page.
+- `via-lactea/` — Milky Way in visible light vs. neutrinos (IceCube 2023). Uses `assets/img/via-lactea-optica.jpg` (ESO/S. Brunier, CC BY 4.0) and `assets/img/via-lactea-neutrinos.jpg` (IceCube/NSF artwork, affine-warped to align with the ESO crop), both 1600×800 and <250 KB; sources and credits are in the README. The `<img>` tags are `hidden` and revealed when they load, falling back to a browser-generated schematic. Image credit text lives in that page; replacing either image requires keeping the two aligned.
 
 ### QR redirects — do not break
 
@@ -37,4 +37,4 @@ The printed QR codes (`qr/*.svg|png`) point to `q/osc/`, `q/cherenkov/`, `q/gala
 
 - Files are sometimes copied in from Windows, which creates `*:Zone.Identifier` junk files; `.gitignore` excludes them.
 - `.gitattributes` forces LF line endings.
-- Open TODOs (from README): real Milky Way images with credit, testing printed QR size.
+- Open TODOs (from README): testing printed QR size.
