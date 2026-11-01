@@ -74,11 +74,17 @@
   var $ = function (id) { return document.getElementById(id); };
   var reducido = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Altura de diseño (en px CSS). Se guarda aparte porque asignar cv.height reescribe el atributo height.
+  function altoLogico(cv) {
+    if (!cv.getAttribute("data-alto")) cv.setAttribute("data-alto", cv.getAttribute("height"));
+    return parseInt(cv.getAttribute("data-alto"), 10);
+  }
   function prepararCanvas(cv) {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var w = cv.clientWidth, h = parseInt(cv.getAttribute("height"), 10);
+    var w = cv.clientWidth, h = altoLogico(cv);
     cv.style.height = h + "px";
-    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    var W = Math.round(w * dpr), H = Math.round(h * dpr);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return { ctx: ctx, w: w, h: h };
   }
@@ -162,7 +168,7 @@
     return "rgb(" + Math.round(a[0] + (b[0] - a[0]) * u) + "," + Math.round(a[1] + (b[1] - a[1]) * u) + "," + Math.round(a[2] + (b[2] - a[2]) * u) + ")";
   }
   function lanzar() {
-    var w = cvD.clientWidth, h = parseInt(cvD.getAttribute("height"), 10);
+    var w = cvD.clientWidth, h = altoLogico(cvD);
     var ang = Math.random() * 2 * Math.PI, dir = [Math.cos(ang), Math.sin(ang)];
     var vtx = [w * (0.3 + 0.4 * Math.random()), h * (0.3 + 0.4 * Math.random())];
     var c = Math.max(w, h) / 1.6; // px/s para la luz (cámara lenta)
