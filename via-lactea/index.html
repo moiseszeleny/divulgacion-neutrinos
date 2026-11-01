@@ -56,6 +56,7 @@
   <h2>Para saber más</h2>
   <p><a href="https://news.wisc.edu/icecube-shows-milky-way-galaxy-is-a-neutrino-desert/" rel="noopener">Comunicado de la Universidad de Wisconsin–Madison (inglés)</a></p>
   <p><a href="https://doi.org/10.1126/science.adc9818" rel="noopener">Artículo original: IceCube Collaboration, <i>Science</i> 380, 1338 (2023)</a></p>
+  <p class="credito">Imágenes: <a href="https://icecube.wisc.edu/news/press-releases/2023/06/our-galaxy-seen-through-a-new-lens-neutrinos-detected-by-icecube/" rel="noopener">IceCube Collaboration/U.S. National Science Foundation (Lily Le &amp; Shawn Johnson)/ESO (S. Brunier)</a> y <a href="https://www.eso.org/public/images/eso0932a/" rel="noopener">ESO/S. Brunier</a> (<a href="https://creativecommons.org/licenses/by/4.0/deed.es" rel="noopener">CC BY 4.0</a>), recortadas y redimensionadas.</p>
 
   <details class="fisica">
     <summary>Ver la física</summary>
@@ -75,7 +76,7 @@
   // Si existen las imágenes reales en assets/img, se usan; si no, se dibuja una ilustración.
   ["img-opt", "img-nu"].forEach(function (id) {
     var im = $(id);
-    im.addEventListener("load", function () { im.hidden = false; reales++; if (reales === 2) $("credito").textContent = "Imagen: IceCube Collaboration / U.S. National Science Foundation / ESO (ver créditos en el README)."; });
+    im.addEventListener("load", function () { im.hidden = false; reales++; if (reales === 2) $("credito").textContent = "Neutrinos (composición artística): IceCube Collaboration/U.S. National Science Foundation (Lily Le & Shawn Johnson)/ESO (S. Brunier). Luz visible: ESO/S. Brunier, CC BY 4.0. Ambas recortadas y redimensionadas; la de neutrinos, además, reproyectada para alinearla."; });
   });
 
   function rnd(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
