@@ -61,6 +61,7 @@
     <p>En un medio con índice de refracción <i>n</i>, la luz viaja a <i>c/n</i>. Si una partícula cargada va a velocidad <i>v = βc</i> mayor que <i>c/n</i>, emite luz en un cono con ángulo</p>
     <div class="formula">cos θ = 1 / (n β)</div>
     <p style="margin-top:10px">El umbral es β &gt; 1/n. En el hielo (n ≈ 1.31) basta con β &gt; 0.76, y para partículas ultrarrelativistas θ ≈ 40°. En el aire (n ≈ 1.0003) casi ninguna partícula lo logra. Es el análogo luminoso del “estampido sónico” de un avión supersónico.</p>
+    <p>Si β &lt; 1/n, la partícula también perturba el medio, pero esas ondas se cancelan entre sí y no sale luz; los círculos punteados solo muestran hasta dónde llegó cada perturbación.</p>
     <p>IceCube tiene 5 160 sensores en 86 cables, entre 1 450 y 2 450 m bajo el hielo del Polo Sur. Con los tiempos de llegada de la luz se reconstruye la dirección del muón y, con ella, de dónde vino el neutrino.</p>
     <p class="aviso">Simulación simplificada en dos dimensiones: geometría de Cherenkov exacta, pero la atenuación y la dispersión de la luz en el hielo están idealizadas.</p>
   </details>
@@ -96,7 +97,7 @@
     $("r-a").textContent = hay ? Math.round(Math.acos(1 / (A.n * A.beta)) * 180 / Math.PI) + "°" : "—";
     var e = $("estado");
     if (hay) { e.textContent = "¡Destello! La partícula adelanta a la luz y las ondas se acumulan en un cono."; e.style.color = "#1655C4"; }
-    else { e.textContent = "Sin luz de Cherenkov: la partícula va más lenta que la luz en este medio."; e.style.color = "#44546A"; }
+    else { e.textContent = "Sin luz de Cherenkov: la partícula va más lenta que la luz en este medio. Las ondas nunca se juntan y se cancelan entre sí."; e.style.color = "#44546A"; }
   }
   function reiniciar() { A.t = 0; A.ondas = []; A.ultEmision = -1; }
 
@@ -106,15 +107,19 @@
     var v = A.beta * VC, cm = VC / A.n;
     var x = 20 + v * A.t;
     ctx.clearRect(0, 0, w, h);
-    // ondas
+    // ondas. Bajo el umbral se cancelan entre sí (no hay luz): grises y punteadas
+    var luz = A.beta * A.n > 1;
+    ctx.setLineDash(luz ? [] : [4, 5]);
     for (var i = 0; i < A.ondas.length; i++) {
       var o = A.ondas[i], r = cm * (A.t - o.t);
       if (r <= 0) continue;
-      ctx.strokeStyle = "rgba(22,85,196," + Math.max(0.12, 0.6 - r / w) + ")"; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = luz ? "rgba(22,85,196," + Math.max(0.12, 0.6 - r / w) + ")" : "rgba(68,84,106," + Math.max(0.1, 0.35 - r / w) + ")";
+      ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(o.x, yc, r, 0, 2 * Math.PI); ctx.stroke();
     }
+    ctx.setLineDash([]);
     // cono de Cherenkov
-    if (A.beta * A.n > 1 && A.ondas.length) {
+    if (luz && A.ondas.length) {
       var o0 = A.ondas[0], r0 = cm * (A.t - o0.t);
       var sa = 1 / (A.n * A.beta), alfa = Math.asin(sa); // semiángulo del frente de choque
       var L = (x - o0.x), ext = Math.sqrt(Math.max(0, L * L - r0 * r0));
