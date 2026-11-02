@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Static GitHub Pages site (served from `main`, root folder) with interactive neutrino animations that accompany the poster “Neutrinos: las partículas fantasma” for IF-UNAM Puertas Abiertas, 13 Nov 2026. Live at https://moiseszeleny.github.io/divulgacion-neutrinos/. All user-facing text, code comments, identifiers and commit messages are in **Spanish** — keep it that way.
+Static GitHub Pages site (served from `main`, root folder) with interactive neutrino animations that accompany the poster “El viaje de un neutrino” for IF-UNAM Puertas Abiertas, 13 Nov 2026. Live at https://moiseszeleny.github.io/divulgacion-neutrinos/. All user-facing text, code comments, identifiers and commit messages are in **Spanish** — keep it that way.
 
 ## Commands
 
