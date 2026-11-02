@@ -8,7 +8,7 @@ Sitio: **https://moiseszeleny.github.io/divulgacion-neutrinos/**
 |---|---|
 | `/` | Inicio, con acceso a las tres experiencias |
 | `/oscilaciones/` | Oscilaciones de tres sabores en el vacío (fórmula exacta, parámetros NuFIT 6.0) con cinco escenarios: reactor, DUNE, neutrinos atmosféricos y los dos viajes del cartel (ver abajo) |
-| `/cherenkov/` | Frentes de onda y cono de Cherenkov (hielo, agua y aire) y un evento simulado en IceCube, con los colores según el tiempo de llegada |
+| `/cherenkov/` | Frentes de onda y cono de Cherenkov (hielo, agua y aire) y un evento simulado en IceCube: el neutrino llega desde abajo, tras cruzar la Tierra, y el muón sube hacia la superficie; los sensores se colorean según el tiempo de llegada de la luz |
 | `/via-lactea/` | La Vía Láctea vista con neutrinos (IceCube, 2023): luz visible con la emisión de neutrinos en azul |
 
 Todo es HTML, CSS y JavaScript sin dependencias ni fuentes externas: cada página pesa menos de 30 KB (más la imagen de 233 KB en `/via-lactea/`, en total menos de 300 KB) y funciona con mala señal.
@@ -32,42 +32,23 @@ Así puedes cambiar el destino después de imprimir: basta con editar `q/<nombre
 
 Los QR vienen en SVG (vectorial, el mejor para imprimir) y en PNG. Imprímelos de al menos 3 × 3 cm y pruébalos con Android y con iPhone antes de mandar el cartel a la imprenta.
 
-## Subir el repositorio desde WSL
+## Cómo actualizar el sitio
 
-1. Abre WSL y entra a la carpeta. Si la unidad `P:` no aparece en `/mnt/p`, móntala primero:
-   ```bash
-   sudo mkdir -p /mnt/p && sudo mount -t drvfs P: /mnt/p
-   cd "/mnt/p/My_papers/Eventos/Puertas abiertas IFUNAM 2026/divulgacion-neutrinos"
-   ```
-2. Crea el repositorio y súbelo.
+GitHub Pages ya está activo y publica la rama `main` desde la carpeta raíz. El archivo `.nojekyll` evita que GitHub procese el sitio con Jekyll. Los cambios se hacen en una rama y entran a `main` con un pull request:
 
-   **Opción A, con GitHub CLI** (si tienes `gh` y ya iniciaste sesión con `gh auth login`):
-   ```bash
-   git init -b main
-   git add .
-   git commit -m "Animaciones de neutrinos para Puertas Abiertas IF-UNAM 2026"
-   gh repo create moiseszeleny/divulgacion-neutrinos --public --source=. --push
-   ```
-   **Opción B, solo con git:** crea en github.com un repositorio público vacío llamado `divulgacion-neutrinos` (sin README) y luego ejecuta:
-   ```bash
-   git init -b main
-   git add .
-   git commit -m "Animaciones de neutrinos para Puertas Abiertas IF-UNAM 2026"
-   git remote add origin git@github.com:moiseszeleny/divulgacion-neutrinos.git   # o https://github.com/moiseszeleny/divulgacion-neutrinos.git
-   git push -u origin main
-   ```
-   Si git marca la carpeta como insegura (pasa en unidades de Windows), ejecuta
-   `git config --global --add safe.directory "$(pwd)"`.
+```bash
+git checkout main && git pull
+git checkout -b nombre-del-cambio
+# … edita y prueba en tu computadora (ver abajo) …
+git add -A && git commit -m "Describe el cambio"
+git push -u origin nombre-del-cambio
+gh pr create          # o abre el PR desde github.com
+```
 
-## Activar GitHub Pages
+Cuando fusionas el PR, GitHub Pages vuelve a publicar el sitio en uno o dos minutos. Puedes ver el avance en la pestaña **Actions** del repositorio o con `gh run list`.
 
-1. En GitHub, abre el repositorio y ve a **Settings → Pages**.
-2. En **Build and deployment**, elige **Source: Deploy from a branch**.
-3. En **Branch**, selecciona **`main`** y la carpeta **`/ (root)`**, y luego **Save**.
-4. Espera de 1 a 3 minutos. La página aparecerá en https://moiseszeleny.github.io/divulgacion-neutrinos/.
-5. Abre las tres URL de `q/` desde el celular para confirmar que redirigen bien.
-
-El archivo `.nojekyll` evita que GitHub procese el sitio con Jekyll. Cada `git push` a `main` actualiza el sitio en un par de minutos.
+Si git marca la carpeta como insegura (pasa en unidades de Windows), ejecuta
+`git config --global --add safe.directory "$(pwd)"`.
 
 ## Probar en tu computadora
 
@@ -75,6 +56,13 @@ El archivo `.nojekyll` evita que GitHub procese el sitio con Jekyll. Cada `git p
 python3 -m http.server 8000
 # abre http://localhost:8000
 ```
+
+Antes de fusionar, comprueba:
+
+- [ ] Cada página se ve bien con el ancho de un celular (≈ 390 px), sin desplazamiento horizontal ni errores en la consola del navegador.
+- [ ] Cada página pesa menos de 30 KB; `/via-lactea/`, con su imagen incluida, menos de 300 KB.
+- [ ] Funcionan los cinco escenarios de `/oscilaciones/` y el botón «Lanzar un neutrino» de `/cherenkov/`.
+- [ ] Ya publicado, las tres URL de `q/` abren la página correcta desde el celular.
 
 ## Imagen real de la Vía Láctea
 
