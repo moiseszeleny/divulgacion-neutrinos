@@ -1,6 +1,6 @@
 # Divulgación de neutrinos · Puertas Abiertas IF-UNAM 2026
 
-Animaciones interactivas que acompañan el cartel **“Neutrinos: las partículas fantasma”**, presentado el 13 de noviembre de 2026 en el día de Puertas Abiertas del Instituto de Física de la UNAM.
+Animaciones interactivas que acompañan el cartel **“El viaje de un neutrino”**, presentado el 13 de noviembre de 2026 en el día de Puertas Abiertas del Instituto de Física de la UNAM.
 
 Sitio: **https://moiseszeleny.github.io/divulgacion-neutrinos/**
 
