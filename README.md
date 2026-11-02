@@ -7,11 +7,16 @@ Sitio: **https://moiseszeleny.github.io/divulgacion-neutrinos/**
 | Página | Qué muestra |
 |---|---|
 | `/` | Inicio, con acceso a las tres experiencias |
-| `/oscilaciones/` | Oscilaciones de tres sabores en el vacío (fórmula exacta, parámetros NuFIT 6.0) con escenarios de reactor, DUNE y neutrinos atmosféricos |
+| `/oscilaciones/` | Oscilaciones de tres sabores en el vacío (fórmula exacta, parámetros NuFIT 6.0) con cinco escenarios: reactor, DUNE, neutrinos atmosféricos y los dos viajes del cartel (ver abajo) |
 | `/cherenkov/` | Frentes de onda y cono de Cherenkov (hielo, agua y aire) y un evento simulado en IceCube, con los colores según el tiempo de llegada |
-| `/via-lactea/` | Comparación entre la Vía Láctea en luz visible y en neutrinos (IceCube, 2023) |
+| `/via-lactea/` | La Vía Láctea vista con neutrinos (IceCube, 2023): luz visible con la emisión de neutrinos en azul |
 
-Todo es HTML, CSS y JavaScript sin dependencias ni fuentes externas: cada página pesa menos de 30 KB y funciona con mala señal.
+Todo es HTML, CSS y JavaScript sin dependencias ni fuentes externas: cada página pesa menos de 30 KB (más la imagen de 233 KB en `/via-lactea/`, en total menos de 300 KB) y funciona con mala señal.
+
+### Escenarios de oscilaciones del cartel
+
+- **Desde NGC 1068:** a 47 millones de años luz las oscilaciones son tan rápidas que solo cuenta el promedio, P̄(α→β) = Σᵢ |U_αi|² |U_βi|². La energía y la distancia no cambian el resultado, así que sus deslizadores se desactivan. El botón **Mezcla de origen 1 : 2 : 0** parte de la mezcla que producen los piones (νe:νμ:ντ ≈ 1:2:0) y muestra que llega casi en 1:1:1 (≈ 30 % : 35 % : 34 %).
+- **De CU a IceCube:** νμ de 25 GeV a lo largo de la cuerda de 10 400 km entre la Ciudad de México y el Polo Sur (la energía a la que IceCube DeepCore mide esta oscilación). Fórmula en el vacío, sin el efecto MSW.
 
 ## Códigos QR y redirecciones
 
@@ -71,28 +76,31 @@ python3 -m http.server 8000
 # abre http://localhost:8000
 ```
 
-## Imágenes de la Vía Láctea
+## Imagen real de la Vía Láctea
 
-`/via-lactea/` usa dos imágenes alineadas de 1600 × 800 px. Si faltan, la página muestra una **ilustración esquemática** generada en el navegador.
+`/via-lactea/` muestra la composición de IceCube (la Vía Láctea en luz visible con la emisión de neutrinos en azul), incluida en el repositorio: `assets/img/via-lactea-neutrinos.jpg`, 1600 × 800 px, 233 KB.
 
-| Archivo | Fuente | Crédito | Licencia |
-|---|---|---|---|
-| `assets/img/via-lactea-optica.jpg` | [ESO eso0932a, “The Milky Way panorama”](https://www.eso.org/public/images/eso0932a/) | ESO/S. Brunier | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.es) |
-| `assets/img/via-lactea-neutrinos.jpg` | [Comunicado de IceCube, 29 jun 2023](https://icecube.wisc.edu/news/press-releases/2023/06/our-galaxy-seen-through-a-new-lens-neutrinos-detected-by-icecube/) (composición artística) | IceCube Collaboration/U.S. National Science Foundation (Lily Le & Shawn Johnson)/ESO (S. Brunier) | Imagen de prensa, se reproduce con crédito |
+| Fuente | Crédito | Licencia |
+|---|---|---|
+| [Comunicado de IceCube, 29 jun 2023](https://icecube.wisc.edu/news/press-releases/2023/06/our-galaxy-seen-through-a-new-lens-neutrinos-detected-by-icecube/) (composición artística) | IceCube Collaboration/U.S. National Science Foundation (Lily Le & Shawn Johnson)/ESO (S. Brunier) | Imagen de prensa, se reproduce con crédito |
+| Fondo en luz visible: [ESO eso0932a, “The Milky Way panorama”](https://www.eso.org/public/images/eso0932a/) | ESO/S. Brunier | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.es) |
 
-Modificaciones: de la panorámica de ESO se recortó una ventana 2:1 de unos 280° centrada en el centro galáctico. La composición de IceCube, que usa la misma panorámica de fondo pero estirada, se reproyectó con una transformación afín (ajustada con unas 80 estrellas coincidentes) para que ambas queden alineadas en el comparador. Las dos se redimensionaron y comprimieron a menos de 250 KB.
+Modificaciones: se recortó a 2:1, se reproyectó ligeramente con una transformación afín (de una versión anterior que la alineaba con la panorámica de ESO), se redimensionó y se comprimió a menos de 250 KB. El crédito aparece al pie de la imagen y en el pie de la página.
 
 ## Física y fuentes
 
 - Parámetros de oscilación: ajuste global NuFIT 6.0 (2024), ordenamiento normal, valores aproximados. La simulación es en el vacío y no incluye el efecto MSW.
 - Cherenkov: cos θ = 1/(nβ), con n = 1.31 (hielo), 1.33 (agua) y 1.0003 (aire).
 - IceCube Collaboration, “Observation of high-energy neutrinos from the Galactic plane”, *Science* 380, 1338 (2023), [doi:10.1126/science.adc9818](https://doi.org/10.1126/science.adc9818).
+- IceCube Collaboration, “Evidence for neutrino emission from the nearby active galaxy NGC 1068”, *Science* 378, 538 (2022), [doi:10.1126/science.abg3395](https://doi.org/10.1126/science.abg3395).
 - Premio Nobel de Física 2026: Francis Halzen ([nobelprize.org](https://www.nobelprize.org/prizes/physics/2026/summary/)).
 
 ## Pendientes
 
 - [x] Enlace al Departamento de Física Teórica en `index.html`.
-- [x] Agregar las imágenes reales de la Vía Láctea, con su crédito.
+- [x] Mostrar la imagen real de IceCube en `/via-lactea/` (sin comparador), con su crédito.
+- [x] Escenarios del cartel en oscilaciones: «Desde NGC 1068» (promedio y mezcla 1:2:0) y «De CU a IceCube».
+- [x] Cherenkov: los neutrinos llegan desde abajo, tras cruzar la Tierra.
 - [ ] Probar los QR impresos al tamaño final.
 
 ## Licencia

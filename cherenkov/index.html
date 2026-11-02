@@ -45,6 +45,7 @@
   </section>
 
   <h2>Así “ve” IceCube un neutrino</h2>
+  <p>IceCube usa la Tierra como filtro: los neutrinos que llegan desde abajo ya la atravesaron. Casi nada más puede hacerlo.</p>
   <p>Un neutrino muónico choca con un átomo del hielo y crea un <strong>muón</strong>. El muón cruza el detector emitiendo luz de Cherenkov, y los sensores se encienden. El <strong>color</strong> indica cuándo llegó la luz y el <strong>tamaño</strong>, cuánta luz recibió cada sensor.</p>
   <section class="tarjeta" aria-label="Simulación de un evento en IceCube">
     <canvas id="detector" class="lienzo" height="340" role="img" aria-label="Detector con cables de sensores; un muón lo atraviesa y los sensores se iluminan según el tiempo de llegada de la luz"></canvas>
@@ -169,8 +170,9 @@
   }
   function lanzar() {
     var w = cvD.clientWidth, h = altoLogico(cvD);
-    var ang = Math.random() * 2 * Math.PI, dir = [Math.cos(ang), Math.sin(ang)];
-    var vtx = [w * (0.3 + 0.4 * Math.random()), h * (0.3 + 0.4 * Math.random())];
+    // Hacia arriba en el lienzo (y crece hacia abajo): el neutrino ya cruzó la Tierra
+    var ang = -Math.PI / 2 + (Math.random() * 1.2 - 0.6), dir = [Math.cos(ang), Math.sin(ang)];
+    var vtx = [w * (0.3 + 0.4 * Math.random()), h * (0.45 + 0.3 * Math.random())];
     var c = Math.max(w, h) / 1.6; // px/s para la luz (cámara lenta)
     var cables = geom(w, h), golpes = [], tmin = Infinity, tmax = 0, dmax = Math.min(w, h) * 0.42;
     cables.forEach(function (s) { s.forEach(function (p) {
@@ -183,8 +185,16 @@
       golpes.push({ x: p.x, y: p.y, t: t, q: q }); if (t > tmax) tmax = t; if (t < tmin) tmin = t;
     }); });
     B = { dir: dir, vtx: vtx, c: c, golpes: golpes, tmin: golpes.length ? tmin : 0, tmax: tmax || 1, t: -0.9, w: w, h: h, fin: false };
-    $("estado2").textContent = "Llega un neutrino muónico… no deja rastro hasta que choca.";
+    $("estado2").textContent = "Llega un neutrino muónico desde abajo, tras cruzar la Tierra… no deja rastro hasta que choca.";
     $("lanzar").disabled = true;
+  }
+  // Rótulo discreto con fondo claro para que no se encime con los cables
+  function rotulo(ctx, txt, x, y) {
+    ctx.font = "600 12px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    var ancho = ctx.measureText(txt).width + 12;
+    ctx.fillStyle = "rgba(227,238,248,0.9)"; ctx.fillRect(x - ancho / 2, y - 9, ancho, 18);
+    ctx.fillStyle = "#44546A"; ctx.fillText(txt, x, y);
+    ctx.textBaseline = "alphabetic";
   }
   function dibujarDetector() {
     var g = prepararCanvas(cvD), ctx = g.ctx, w = g.w, h = g.h;
@@ -194,12 +204,14 @@
     cables.forEach(function (s) { ctx.beginPath(); ctx.moveTo(s[0].x, 8); ctx.lineTo(s[0].x, h - 8); ctx.stroke(); });
     ctx.fillStyle = "#5B7FA6";
     cables.forEach(function (s) { s.forEach(function (p) { ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, 2 * Math.PI); ctx.fill(); }); });
+    rotulo(ctx, "↑ superficie del hielo", w / 2, 12);
+    rotulo(ctx, "roca: la Tierra ↓", w / 2, h - 12);
     if (!B) {
       ctx.fillStyle = "#44546A"; ctx.font = "600 15px system-ui, sans-serif"; ctx.textAlign = "center";
       ctx.fillText("Toca “Lanzar un neutrino”", w / 2, h / 2); return;
     }
-    var R = Math.hypot(w, h);
-    // neutrino entrante (antes del vértice)
+    // neutrino entrante (antes del vértice), desde el borde inferior
+    var R = (h - B.vtx[1]) / -B.dir[1];
     var tn = Math.min(0, B.t), ini = [B.vtx[0] - B.dir[0] * R, B.vtx[1] - B.dir[1] * R];
     var pn = [B.vtx[0] + B.dir[0] * B.c * tn * 1.2, B.vtx[1] + B.dir[1] * B.c * tn * 1.2];
     ctx.strokeStyle = "#D9661F"; ctx.lineWidth = 3; ctx.setLineDash([10, 8]);

@@ -14,6 +14,8 @@
   .barra-p .relleno { height: 100%; width: 0; border-radius: 9px; }
   .barra-p .num { text-align: right; font-variant-numeric: tabular-nums; }
   .estado { font-weight: 800; font-size: 18px; margin: 10px 0 0; min-height: 27px; }
+  #origen[hidden] { display: none; }
+  input[type=range]:disabled { opacity: .4; }
 </style>
 </head>
 <body>
@@ -37,13 +39,17 @@
         <button type="button" data-esc="reactor">Reactor nuclear</button>
         <button type="button" data-esc="dune">Acelerador (DUNE)</button>
         <button type="button" data-esc="atm">Atmósfera (cruza la Tierra)</button>
+        <button type="button" data-esc="galaxia">Desde NGC 1068</button>
+        <button type="button" data-esc="cu-icecube">De CU a IceCube</button>
       </div>
       <div class="grupo" role="group" aria-labelledby="et-sab">
         <span class="etiqueta" id="et-sab">Tipo inicial</span>
         <button type="button" data-sab="0">ν<sub>e</sub></button>
         <button type="button" data-sab="1">ν<sub>μ</sub></button>
         <button type="button" data-sab="2">ν<sub>τ</sub></button>
+        <button type="button" id="origen" aria-pressed="false" hidden>Mezcla de origen 1 : 2 : 0</button>
       </div>
+      <p class="aviso" id="nota-prom" hidden>Tan lejos, el neutrino oscila tantísimas veces que solo cuenta el <strong>promedio</strong>: la energía y la distancia ya no cambian el resultado, por eso esos controles están desactivados.</p>
       <label class="deslizador">Energía: <output id="o-e"></output>
         <input type="range" id="energia" min="0" max="1000" step="1">
       </label>
@@ -80,6 +86,10 @@
       <tr><td>Δm²<sub>21</sub></td><td>7.49 × 10⁻⁵ eV²</td></tr>
       <tr><td>Δm²<sub>31</sub></td><td>2.51 × 10⁻³ eV²</td></tr>
     </table>
+    <p style="margin-top:10px"><strong>Desde NGC 1068.</strong> A 47 millones de años luz las fases oscilan tan rápido que ningún detector puede seguirlas; solo queda el promedio:</p>
+    <div class="formula">P̄(ν<sub>α</sub>→ν<sub>β</sub>) = Σ<sub>i</sub> |U<sub>αi</sub>|² |U<sub>βi</sub>|²</div>
+    <p style="margin-top:10px">Las fuentes astrofísicas producen neutrinos al decaer piones (π → μ ν<sub>μ</sub>, μ → e ν<sub>e</sub> ν<sub>μ</sub>), con proporciones ν<sub>e</sub> : ν<sub>μ</sub> : ν<sub>τ</sub> ≈ 1 : 2 : 0. Tras promediar, llegan a la Tierra en proporciones cercanas a 1 : 1 : 1.</p>
+    <p><strong>De CU a IceCube.</strong> IceCube DeepCore observa esta oscilación con neutrinos atmosféricos de unos 25 GeV. A energías de TeV, como las de los neutrinos cósmicos, prácticamente no oscilan en este trayecto. Aquí se usa la fórmula en el vacío; al cruzar la Tierra, la materia (efecto MSW) modifica ligeramente el resultado.</p>
     <p class="aviso" style="margin-top:10px">Valores de referencia aproximados del ajuste global NuFIT 6.0 (2024), ordenamiento normal. Al atravesar la Tierra o el Sol, la materia modifica las oscilaciones (efecto MSW); aquí no se incluye, por eso no mostramos neutrinos solares. Que los neutrinos oscilen implica que <strong>tienen masa</strong>: algo que el Modelo Estándar no explica.</p>
   </details>
 </main>
@@ -132,25 +142,49 @@
     }
     return out;
   }
+  // Promedio sobre distancias enormes: P̄(α→β) = Σ_i |U_αi|² |U_βi|² (igual para neutrinos y antineutrinos)
+  function abs2(z) { return z[0] * z[0] + z[1] * z[1]; }
+  function probsPromedio(a) {
+    var out = [0, 0, 0];
+    for (var b = 0; b < 3; b++) for (var i = 0; i < 3; i++) out[b] += abs2(U[a][i]) * abs2(U[b][i]);
+    return out;
+  }
+  // Sabores al llegar si en la fuente salen en proporciones w (normalizadas a 1)
+  function mezclaPromedio(w) {
+    var s = w[0] + w[1] + w[2], out = [0, 0, 0];
+    for (var a = 0; a < 3; a++) { var pa = probsPromedio(a); for (var b = 0; b < 3; b++) out[b] += w[a] / s * pa[b]; }
+    return out;
+  }
 
   // ---------- Escenarios ----------
   var ESC = {
     reactor: { E: 0.004, Lmax: 200, sab: 0, anti: true, fuente: "Reactor", det: "Detector", texto: "antineutrinos de reactor (≈ 4 MeV)" },
     dune: { E: 2.5, Lmax: 1300, sab: 1, anti: false, fuente: "Fermilab", det: "DUNE", texto: "haz de acelerador, 1 300 km como en DUNE" },
-    atm: { E: 1, Lmax: 12742, sab: 1, anti: false, fuente: "Atmósfera", det: "Detector", texto: "cruzando todo el diámetro de la Tierra" }
+    atm: { E: 1, Lmax: 12742, sab: 1, anti: false, fuente: "Atmósfera", det: "Detector", texto: "cruzando todo el diámetro de la Tierra" },
+    // prom: solo se muestra el promedio; E y Lmax no se usan
+    galaxia: { E: 1, Lmax: 1, sab: 1, anti: false, prom: true, fuente: "NGC 1068", det: "IceCube", texto: "desde la galaxia NGC 1068, a ~47 millones de años luz" },
+    "cu-icecube": { E: 25, Lmax: 10400, sab: 1, anti: false, fuente: "CU", det: "IceCube", texto: "de la Ciudad de México al Polo Sur, cruzando la Tierra" }
   };
+  var ORIGEN = [1, 2, 0]; // νe : νμ : ντ al producirse por decaimiento de piones
   var COLORES = ["#1846A3", "#D9661F", "#0E7A65"];
   var RGB = [[24, 70, 163], [217, 102, 31], [14, 122, 101]];
   var NOMBRES = ["electrónico", "muónico", "tauónico"];
   var E_MIN = 0.001, E_MAX = 100; // GeV
 
-  var st = { esc: "dune", sab: 1, E: 2.5, Lmax: 1300, anti: false, x: 0, jugando: true };
+  var st = { esc: "dune", sab: 1, E: 2.5, Lmax: 1300, anti: false, prom: false, origen: false, x: 0, jugando: true };
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) st.jugando = false;
 
   var $ = function (id) { return document.getElementById(id); };
   var cvV = $("viaje"), cvG = $("grafica");
-  var inE = $("energia"), inL = $("distancia"), btnPlay = $("play");
+  var inE = $("energia"), inL = $("distancia"), btnPlay = $("play"), btnOrigen = $("origen");
   var curva = null;
+
+  // Escenario de promedio (NGC 1068): sabores al salir y al llegar
+  function pInicio() {
+    if (st.origen) { var s = ORIGEN[0] + ORIGEN[1] + ORIGEN[2]; return [ORIGEN[0] / s, ORIGEN[1] / s, ORIGEN[2] / s]; }
+    var v = [0, 0, 0]; v[st.sab] = 1; return v;
+  }
+  function pFinal() { return st.origen ? mezclaPromedio(ORIGEN) : probsPromedio(st.sab); }
 
   function eDesdeSlider(v) { return E_MIN * Math.pow(E_MAX / E_MIN, v / 1000); }
   function sliderDesdeE(E) { return Math.round(1000 * Math.log(E / E_MIN) / Math.log(E_MAX / E_MIN)); }
@@ -174,6 +208,7 @@
 
   function calcularCurva() {
     var N = 900, pts = [];
+    if (st.prom) { var f = pFinal(); for (var j = 0; j <= N; j++) pts.push(f); curva = pts; return; }
     for (var k = 0; k <= N; k++) { var L = st.Lmax * k / N; pts.push(probs(st.sab, L, st.E, st.anti, st.Lmax / 600)); }
     curva = pts;
   }
@@ -190,8 +225,9 @@
       ctx.textAlign = "right"; ctx.fillText(Math.round(y * 100) + "%", m.l - 6, yy + 4);
     }
     ctx.textAlign = "center";
+    if (st.prom) ctx.fillText("distancia: ~47 millones de años luz", m.l + pw / 2, h - 8);
     // En pantallas angostas solo 0, mitad y final, para que las etiquetas no se encimen
-    for (var t = 0; t <= 4; t += (pw < 420 ? 2 : 1)) { ctx.textAlign = t === 4 ? "right" : "center"; ctx.fillText(fmtL(st.Lmax * t / 4), t === 4 ? w - 4 : m.l + pw * t / 4, h - 8); }
+    else for (var t = 0; t <= 4; t += (pw < 420 ? 2 : 1)) { ctx.textAlign = t === 4 ? "right" : "center"; ctx.fillText(fmtL(st.Lmax * t / 4), t === 4 ? w - 4 : m.l + pw * t / 4, h - 8); }
     var N = curva.length - 1;
     for (var b = 0; b < 3; b++) {
       ctx.strokeStyle = COLORES[b]; ctx.lineWidth = 2.5; ctx.beginPath();
@@ -221,7 +257,7 @@
     // estela de colores
     var N = 60;
     for (var k = 0; k < N; k++) {
-      var f = st.x * k / N, idx = Math.round(f * (curva.length - 1)), q = curva[idx];
+      var f = st.x * k / N, q = st.prom ? pViaje(f) : curva[Math.round(f * (curva.length - 1))];
       ctx.fillStyle = mezcla(q, 0.35); ctx.beginPath(); ctx.arc(x0 + (x1 - x0) * f, yc, 5, 0, 2 * Math.PI); ctx.fill();
     }
     // neutrino
@@ -236,18 +272,29 @@
     return "rgba(" + Math.round(r) + "," + Math.round(gg) + "," + Math.round(bb) + "," + a + ")";
   }
 
+  // En el escenario de promedio, la bolita sale con su sabor de origen y en el primer tramo
+  // (10 % del camino) se funde en la mezcla promedio, que ya no cambia.
+  function pViaje(f) {
+    var a = pInicio(), b = pFinal(), s = Math.min(1, f / 0.1);
+    return [a[0] + (b[0] - a[0]) * s, a[1] + (b[1] - a[1]) * s, a[2] + (b[2] - a[2]) * s];
+  }
+
   var ultimoEstado = "";
   function actualizarLecturas(p) {
     for (var i = 0; i < 3; i++) { $("b" + i).style.width = (p[i] * 100).toFixed(1) + "%"; $("n" + i).textContent = Math.round(p[i] * 100) + "%"; }
-    var max = p.indexOf(Math.max.apply(null, p));
-    var txt = "Ahora lo más probable es detectarlo como " + (st.anti && max === 0 ? "anti" : "") + "neutrino " + NOMBRES[max] + ".";
-    if (txt !== ultimoEstado) { $("estado").textContent = txt; $("estado").style.color = COLORES[max]; ultimoEstado = txt; }
-    $("o-l").textContent = fmtL(st.x * st.Lmax);
+    var max = p.indexOf(Math.max.apply(null, p)), txt, color = COLORES[max];
+    if (st.prom && st.origen) { txt = "Sale casi sin ντ… y llega con los tres sabores en partes casi iguales."; color = "#1655C4"; }
+    else if (st.prom) txt = "Al llegar a IceCube lo más probable es detectarlo como neutrino " + NOMBRES[max] + ", pero los tres sabores se mezclan.";
+    else txt = "Ahora lo más probable es detectarlo como " + (st.anti && max === 0 ? "anti" : "") + "neutrino " + NOMBRES[max] + ".";
+    if (txt !== ultimoEstado) { $("estado").textContent = txt; $("estado").style.color = color; ultimoEstado = txt; }
+    $("o-l").textContent = st.prom ? "~47 millones de años luz" : fmtL(st.x * st.Lmax);
   }
 
   function render() {
-    var p = probs(st.sab, st.x * st.Lmax, st.E, st.anti, st.Lmax / 600);
-    dibujarViaje(p); dibujarGrafica(); actualizarLecturas(p);
+    var p, barras;
+    if (st.prom) { p = pViaje(st.x); barras = pFinal(); }
+    else barras = p = probs(st.sab, st.x * st.Lmax, st.E, st.anti, st.Lmax / 600);
+    dibujarViaje(p); dibujarGrafica(); actualizarLecturas(barras);
     inL.value = Math.round(st.x * 1000);
   }
 
@@ -256,14 +303,25 @@
   }
   function ponerEscenario(k) {
     var e = ESC[k]; st.esc = k; st.E = e.E; st.Lmax = e.Lmax; st.sab = e.sab; st.anti = e.anti; st.x = 0;
-    inE.value = sliderDesdeE(st.E); $("o-e").textContent = fmtE(st.E);
+    st.prom = !!e.prom; st.origen = false;
+    inE.disabled = inL.disabled = st.prom; btnOrigen.hidden = $("nota-prom").hidden = !st.prom;
+    btnOrigen.setAttribute("aria-pressed", "false");
+    inE.value = sliderDesdeE(st.E); $("o-e").textContent = st.prom ? "no importa" : fmtE(st.E);
     marcar("[data-esc]", "data-esc", k); marcar("[data-sab]", "data-sab", st.sab);
     calcularCurva(); render();
   }
 
   document.querySelectorAll("[data-esc]").forEach(function (b) { b.addEventListener("click", function () { ponerEscenario(b.getAttribute("data-esc")); }); });
   document.querySelectorAll("[data-sab]").forEach(function (b) {
-    b.addEventListener("click", function () { st.sab = +b.getAttribute("data-sab"); st.anti = st.esc === "reactor" && st.sab === 0; marcar("[data-sab]", "data-sab", st.sab); calcularCurva(); render(); });
+    b.addEventListener("click", function () {
+      st.sab = +b.getAttribute("data-sab"); st.anti = st.esc === "reactor" && st.sab === 0; st.origen = false;
+      btnOrigen.setAttribute("aria-pressed", "false"); marcar("[data-sab]", "data-sab", st.sab); calcularCurva(); render();
+    });
+  });
+  btnOrigen.addEventListener("click", function () {
+    st.origen = !st.origen; st.x = 0;
+    btnOrigen.setAttribute("aria-pressed", st.origen ? "true" : "false");
+    marcar("[data-sab]", "data-sab", st.origen ? -1 : st.sab); calcularCurva(); render();
   });
   inE.addEventListener("input", function () { st.E = eDesdeSlider(+inE.value); $("o-e").textContent = fmtE(st.E); calcularCurva(); render(); });
   inL.addEventListener("input", function () { st.x = +inL.value / 1000; pausar(true); render(); });
